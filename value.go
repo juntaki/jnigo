@@ -9,6 +9,8 @@ import (
 	"unsafe"
 )
 
+const intSize = 32 << (^uint(0) >> 63)
+
 type jPrimitive struct {
 	JObject
 	javavalue *C.jvalue
@@ -102,6 +104,14 @@ func (jvm *JVM) newJPrimitive(initialValue interface{}) (*jPrimitive, error) {
 	case int64:
 		sig = SignatureLong
 		C.memcpy(unsafe.Pointer(javavalue), unsafe.Pointer(&value), C.size_t(unsafe.Sizeof(value)))
+	case int:
+		if intSize == 64 {
+			sig = SignatureLong
+			C.memcpy(unsafe.Pointer(javavalue), unsafe.Pointer(&value), C.size_t(unsafe.Sizeof(value)))
+		} else {
+			sig = SignatureInt
+			C.memcpy(unsafe.Pointer(javavalue), unsafe.Pointer(&value), C.size_t(unsafe.Sizeof(value)))
+		}
 	case float32:
 		sig = SignatureFloat
 		C.memcpy(unsafe.Pointer(javavalue), unsafe.Pointer(&value), C.size_t(unsafe.Sizeof(value)))

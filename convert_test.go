@@ -85,3 +85,20 @@ func TestConvertPrimitive(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertJObject(t *testing.T) {
+	jvm := CreateJVM()
+
+	input, err := jvm.Convert(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	output, err := jvm.Convert(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if input != output {
+		t.Fatal(input, output)
+	}
+}
