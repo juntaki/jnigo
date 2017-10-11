@@ -11,3 +11,15 @@ func (jvm *JVM) Convert(value interface{}) (JObject, error) {
 		return jvm.newJPrimitive(value)
 	}
 }
+
+func (jvm *JVM) ConvertAll(allValue []interface{}) ([]JObject, error) {
+	ret := make([]JObject, len(value))
+
+	for i, value := range allValue {
+		ret[i], err = jvm.Convert(value)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return ret, nil
+}
