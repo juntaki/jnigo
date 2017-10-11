@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestjPrimitive(t *testing.T) {
+func TestJPrimitive(t *testing.T) {
 	jvm := CreateJVM()
 
 	testArray := [][]interface{}{

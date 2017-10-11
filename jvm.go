@@ -38,7 +38,8 @@ func freeJVM(jvm *JVM) {
 	C.free(unsafe.Pointer(jvm.cjvm))
 }
 
-func (jvm *JVM) DestroyJVM() {
+// This may not work
+func (jvm *JVM) destroyJVM() {
 	C.destroyJVM(jvm.cjvm)
 }
 

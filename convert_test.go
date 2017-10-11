@@ -5,11 +5,8 @@ import (
 	"testing"
 )
 
-func TestJArray(t *testing.T) {
+func TestConvertArray(t *testing.T) {
 	jvm := CreateJVM()
-
-	//clazz := "TestClass"
-	//gojclass, _ := jvm.NewJClass(clazz, []JObject{})
 
 	testArray := [][]interface{}{
 		[]interface{}{[]bool{false, false}, SignatureArray + SignatureBoolean},
@@ -28,12 +25,11 @@ func TestJArray(t *testing.T) {
 		[]interface{}{[]float32{1000.0, 1000.0}, SignatureArray + SignatureFloat},
 		[]interface{}{[]float64{1.0, 1.0}, SignatureArray + SignatureDouble},
 		[]interface{}{[]float64{1000.0, 1000.0}, SignatureArray + SignatureDouble},
-		//[]interface{}{[]JObject{gojclass, gojclass}, SignatureArray + gojclass.Signature()},
 	}
 
 	for _, test := range testArray {
 		fmt.Println(test)
-		value, err := jvm.newJArray(test[0])
+		value, err := jvm.Convert(test[0])
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -46,6 +42,44 @@ func TestJArray(t *testing.T) {
 			t.Fatal(orig, goval)
 		}
 
+		if value.Signature() != test[1] {
+			t.Fatal(value.GoValue())
+		}
+	}
+}
+
+func TestConvertPrimitive(t *testing.T) {
+	jvm := CreateJVM()
+
+	testArray := [][]interface{}{
+		[]interface{}{false, SignatureBoolean},
+		[]interface{}{true, SignatureBoolean},
+		[]interface{}{byte(1), SignatureByte},
+		[]interface{}{byte(100), SignatureByte},
+		[]interface{}{uint16(1), SignatureChar},
+		[]interface{}{uint16(10000), SignatureChar},
+		[]interface{}{int16(1), SignatureShort},
+		[]interface{}{int16(10000), SignatureShort},
+		[]interface{}{int32(1), SignatureInt},
+		[]interface{}{int32(10000), SignatureInt},
+		[]interface{}{int64(1), SignatureLong},
+		[]interface{}{int64(10000), SignatureLong},
+		[]interface{}{float32(1.0), SignatureFloat},
+		[]interface{}{float32(1000.0), SignatureFloat},
+		[]interface{}{float64(1.0), SignatureDouble},
+		[]interface{}{float64(1000.0), SignatureDouble},
+	}
+
+	for _, test := range testArray {
+		fmt.Println(test)
+		value, err := jvm.Convert(test[0])
+		fmt.Println(value)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if value.GoValue() != test[0] {
+			t.Fatal(value.GoValue())
+		}
 		if value.Signature() != test[1] {
 			t.Fatal(value.GoValue())
 		}
