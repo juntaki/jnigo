@@ -107,37 +107,37 @@ func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject
 
 	switch retsig {
 	case SignatureBoolean:
-		ret := C.CallStaticBooleanMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		ret := C.CallStaticBooleanMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
 	case SignatureByte:
-		ret := C.CallStaticByteMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		ret := C.CallStaticByteMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
 	case SignatureChar:
-		ret := C.CallStaticCharMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		ret := C.CallStaticCharMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
 	case SignatureShort:
-		ret := C.CallStaticShortMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		ret := C.CallStaticShortMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
 	case SignatureInt:
-		ret := C.CallStaticIntMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		ret := C.CallStaticIntMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
 	case SignatureLong:
-		ret := C.CallStaticLongMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		ret := C.CallStaticLongMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
 	case SignatureFloat:
-		ret := C.CallStaticFloatMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		ret := C.CallStaticFloatMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
 	case SignatureDouble:
-		ret := C.CallStaticDoubleMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		ret := C.CallStaticDoubleMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
 	case SignatureVoid:
-		C.CallStaticVoidMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
+		C.CallStaticVoidMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
 		return nil, nil
 	case SignatureArray:
-		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
-		return jvm.NewJArrayFromJava(&ret, retsigFull)
+		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		return jvm.newJArrayFromJava(&ret, retsigFull)
 	case SignatureClass:
-		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, JObjectArrayTojvalueArray(argv))
+		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
 		return jvm.NewJClassFromJava(ret, retsigFull)
 	default:
 		return nil, errors.New("Unknown return signature")
@@ -145,7 +145,7 @@ func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject
 }
 
 // TODO: use C malloc
-func JObjectArrayTojvalueArray(args []JObject) *C.jvalue {
+func jObjectArrayTojvalueArray(args []JObject) *C.jvalue {
 	if len(args) == 0 {
 		return nil
 	}

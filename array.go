@@ -9,7 +9,7 @@ import (
 	"unsafe"
 )
 
-type JArray struct {
+type jArray struct {
 	JObject
 	jvm       *JVM
 	javavalue *C.jvalue
@@ -17,7 +17,7 @@ type JArray struct {
 	globalRef C.jobject
 }
 
-func (a *JArray) GoValue() interface{} {
+func (a *jArray) GoValue() interface{} {
 	jobject := *C.jvalue_to_jobject(a.javavalue)
 	length := int(C.GetArrayLength(a.jvm.cjvm.env, jobject))
 	start := C.jsize(0)
@@ -100,31 +100,31 @@ func (a *JArray) GoValue() interface{} {
 	}
 }
 
-func (a *JArray) JavaValue() C.jvalue {
+func (a *jArray) JavaValue() C.jvalue {
 	return *a.javavalue
 }
 
-func (a *JArray) String() string {
+func (a *jArray) String() string {
 	return fmt.Sprintf("0x%x", a.JavaValue())
 }
 
-func (a *JArray) Signature() string {
+func (a *jArray) Signature() string {
 	return a.signature
 }
 
-func (jvm *JVM) NewJArrayFromJava(jobject *C.jobject, sig string) (*JArray, error) {
-	ret := &JArray{
+func (jvm *JVM) newJArrayFromJava(jobject *C.jobject, sig string) (*jArray, error) {
+	ret := &jArray{
 		jvm:       jvm,
 		javavalue: C.calloc_jvalue_jobject(jobject),
 		signature: sig,
 		globalRef: C.NewGlobalRef(jvm.cjvm.env, *jobject),
 	}
 
-	runtime.SetFinalizer(ret, jvm.destroyJArray)
+	runtime.SetFinalizer(ret, jvm.destroyjArray)
 	return ret, nil
 }
 
-func (jvm *JVM) NewJArray(goArray interface{}) (*JArray, error) {
+func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 	start := C.jsize(0)
 	var array C.jobject
 	var sig string
@@ -221,18 +221,18 @@ func (jvm *JVM) NewJArray(goArray interface{}) (*JArray, error) {
 		return nil, errors.New("unsupported type")
 	}
 
-	ret := &JArray{
+	ret := &jArray{
 		jvm:       jvm,
 		javavalue: C.calloc_jvalue_jobject(&array),
 		signature: sig,
 		globalRef: C.NewGlobalRef(jvm.cjvm.env, array),
 	}
 
-	runtime.SetFinalizer(ret, jvm.destroyJArray)
+	runtime.SetFinalizer(ret, jvm.destroyjArray)
 	return ret, nil
 }
 
-func (jvm *JVM) destroyJArray(jobject *JArray) {
+func (jvm *JVM) destroyjArray(jobject *jArray) {
 	C.DeleteGlobalRef(jvm.cjvm.env, jobject.globalRef)
 	C.free(unsafe.Pointer(jobject.javavalue))
 }

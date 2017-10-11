@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestJPrimitive(t *testing.T) {
+func TestjPrimitive(t *testing.T) {
 	jvm := CreateJVM()
 
 	testArray := [][]interface{}{
@@ -29,7 +29,7 @@ func TestJPrimitive(t *testing.T) {
 
 	for _, test := range testArray {
 		fmt.Println(test)
-		value, err := jvm.NewJPrimitive(test[0])
+		value, err := jvm.newJPrimitive(test[0])
 		fmt.Println(value)
 		if err != nil {
 			t.Fatal(err)

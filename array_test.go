@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestJArray(t *testing.T) {
+func TestjArray(t *testing.T) {
 	jvm := CreateJVM()
 
 	//clazz := "TestClass"
@@ -33,7 +33,7 @@ func TestJArray(t *testing.T) {
 
 	for _, test := range testArray {
 		fmt.Println(test)
-		value, err := jvm.NewJArray(test[0])
+		value, err := jvm.newJArray(test[0])
 		if err != nil {
 			t.Fatal(err)
 		}

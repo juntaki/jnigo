@@ -9,13 +9,13 @@ import (
 	"unsafe"
 )
 
-type JPrimitive struct {
+type jPrimitive struct {
 	JObject
 	javavalue *C.jvalue
 	signature string
 }
 
-func (p *JPrimitive) GoValue() interface{} {
+func (p *jPrimitive) GoValue() interface{} {
 	switch p.Signature() {
 	case SignatureBoolean:
 		var value bool
@@ -55,31 +55,31 @@ func (p *JPrimitive) GoValue() interface{} {
 	return nil
 }
 
-func (p *JPrimitive) JavaValue() C.jvalue {
+func (p *jPrimitive) JavaValue() C.jvalue {
 	return *p.javavalue
 }
 
-func (p *JPrimitive) String() string {
+func (p *jPrimitive) String() string {
 	return fmt.Sprintf("0x%x", p.JavaValue())
 }
 
-func (p *JPrimitive) Signature() string {
+func (p *jPrimitive) Signature() string {
 	return p.signature
 }
 
-func (jvm *JVM) NewJPrimitiveFromJava(jinitialValue unsafe.Pointer, sig string) (*JPrimitive, error) {
+func (jvm *JVM) newJPrimitiveFromJava(jinitialValue unsafe.Pointer, sig string) (*jPrimitive, error) {
 	javavalue := C.calloc_jvalue()
 	C.memcpy(unsafe.Pointer(javavalue), jinitialValue, C.size_t(SizeOf[sig]))
 
-	ret := &JPrimitive{
+	ret := &jPrimitive{
 		signature: sig,
 		javavalue: javavalue,
 	}
-	runtime.SetFinalizer(ret, destroyJPrimitive)
+	runtime.SetFinalizer(ret, destroyjPrimitive)
 	return ret, nil
 }
 
-func (jvm *JVM) NewJPrimitive(initialValue interface{}) (*JPrimitive, error) {
+func (jvm *JVM) newJPrimitive(initialValue interface{}) (*jPrimitive, error) {
 	javavalue := C.calloc_jvalue()
 	var sig string
 
@@ -112,15 +112,15 @@ func (jvm *JVM) NewJPrimitive(initialValue interface{}) (*JPrimitive, error) {
 		C.free(unsafe.Pointer(javavalue))
 		return nil, errors.New("unsupported type")
 	}
-	ret := &JPrimitive{
+	ret := &jPrimitive{
 		signature: sig,
 		javavalue: javavalue,
 	}
-	runtime.SetFinalizer(ret, destroyJPrimitive)
+	runtime.SetFinalizer(ret, destroyjPrimitive)
 	return ret, nil
 }
 
-func destroyJPrimitive(jprimitive *JPrimitive) {
+func destroyjPrimitive(jprimitive *jPrimitive) {
 	C.free(unsafe.Pointer(jprimitive.javavalue))
 }
 
