@@ -11,7 +11,8 @@ typedef struct JVM {
 
 // Helper
 
-jvalue* calloc_jvalue();
+jvalue *calloc_jvalue();
+jvalue *calloc_jvalue_array(size_t len);
 jvalue *calloc_jvalue_jobject(jobject *val);
 
 jboolean *jvalue_to_jboolean(jvalue *value);

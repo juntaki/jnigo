@@ -13,8 +13,8 @@ func (jvm *JVM) Convert(value interface{}) (JObject, error) {
 }
 
 func (jvm *JVM) ConvertAll(allValue []interface{}) ([]JObject, error) {
-	ret := make([]JObject, len(value))
-
+	ret := make([]JObject, len(allValue))
+	var err error
 	for i, value := range allValue {
 		ret[i], err = jvm.Convert(value)
 		if err != nil {

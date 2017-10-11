@@ -150,5 +150,11 @@ func jObjectArrayTojvalueArray(args []JObject) *C.jvalue {
 	if len(args) == 0 {
 		return nil
 	}
-	return (*C.jvalue)(unsafe.Pointer(&args[0]))
+
+	jvalueArray := make([]C.jvalue, len(args))
+
+	for i, arg := range args {
+		jvalueArray[i] = arg.JavaValue()
+	}
+	return (*C.jvalue)(unsafe.Pointer(&jvalueArray[0]))
 }
