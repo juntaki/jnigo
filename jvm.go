@@ -139,7 +139,7 @@ func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject
 		return jvm.newJArrayFromJava(&ret, retsigFull)
 	case SignatureClass:
 		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.NewJClassFromJava(ret, retsigFull)
+		return jvm.newJClassFromJava(ret, retsigFull)
 	default:
 		return nil, errors.New("Unknown return signature")
 	}

@@ -91,7 +91,7 @@ func (a *jArray) GoValue() interface{} {
 		jobjectArray := C.jobject_to_jobjectArray(jobject)
 		for i := 0; i < length; i++ {
 			jobject := C.GetObjectArrayElement(a.jvm.cjvm.env, jobjectArray, C.jsize(i))
-			jclass, _ := a.jvm.NewJClassFromJava(jobject, a.Signature()[1:len(a.Signature())])
+			jclass, _ := a.jvm.newJClassFromJava(jobject, a.Signature()[1:len(a.Signature())])
 			value = append(value, jclass)
 		}
 		return value

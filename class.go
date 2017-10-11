@@ -55,7 +55,7 @@ func (c *JClass) GetField(field, sig string) (JObject, error) {
 		return c.jvm.newJArrayFromJava(&ret, sig)
 	case SignatureClass:
 		ret := C.GetObjectField(c.jvm.cjvm.env, *C.jvalue_to_jobject(c.javavalue), fieldID)
-		return c.jvm.NewJClassFromJava(ret, sig)
+		return c.jvm.newJClassFromJava(ret, sig)
 	default:
 		return nil, errors.New("Unknown return signature")
 	}
@@ -163,7 +163,7 @@ func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, erro
 	case SignatureClass:
 		ret := C.CallObjectMethodA(c.jvm.cjvm.env, *C.jvalue_to_jobject(c.javavalue),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.NewJClassFromJava(ret, retsigFull)
+		return c.jvm.newJClassFromJava(ret, retsigFull)
 	default:
 		return nil, errors.New("Unknown return signature")
 	}
@@ -185,7 +185,7 @@ func (c *JClass) Signature() string {
 	return c.signature
 }
 
-func (jvm *JVM) NewJClassFromJava(jobject C.jobject, sig string) (*JClass, error) {
+func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error) {
 	ret := &JClass{
 		jvm:       jvm,
 		javavalue: C.calloc_jvalue_jobject(&jobject),
