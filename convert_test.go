@@ -86,6 +86,16 @@ func TestConvertPrimitive(t *testing.T) {
 	}
 }
 
+func TestConvertJString(t *testing.T) {
+	jvm := CreateJVM()
+	output, err := jvm.Convert("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if output.GoValue() != "test" {
+		t.Fatal(output.GoValue())
+	}
+}
 func TestConvertJObject(t *testing.T) {
 	jvm := CreateJVM()
 

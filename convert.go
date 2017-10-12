@@ -7,6 +7,8 @@ func (jvm *JVM) Convert(value interface{}) (JObject, error) {
 		return jobject, nil
 	} else if reflect.TypeOf(value).Kind() == reflect.Array || reflect.TypeOf(value).Kind() == reflect.Slice {
 		return jvm.newJArray(value)
+	} else if reflect.TypeOf(value).Kind() == reflect.String {
+		return jvm.newjString(value.(string))
 	} else {
 		return jvm.newJPrimitive(value)
 	}

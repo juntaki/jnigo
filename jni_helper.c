@@ -154,6 +154,14 @@ jobject jobjectArray_to_jobject(jobjectArray val) {
     return (jobject)val;
 }
 
+jobject jstring_to_jobject(jstring val) {
+    return (jobject)val;
+}
+jstring jobject_to_jstring(jobject val) {
+    return (jstring)val;
+}
+
+
 // Type conversion
 uint8_t jboolean_to_uint8(jboolean val) {
     return (uint8_t)val;

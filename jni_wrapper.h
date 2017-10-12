@@ -57,6 +57,9 @@ jobject jfloatArray_to_jobject(jfloatArray val);
 jobject jdoubleArray_to_jobject(jdoubleArray val);
 jobject jobjectArray_to_jobject(jobjectArray val);
 
+jobject jstring_to_jobject(jstring val);
+jstring jobject_to_jstring(jobject val);
+
 uint8_t jboolean_to_uint8(jboolean val);
 int8_t jbyte_to_int8(jbyte val);
 uint16_t jchar_to_uint16(jchar val);
