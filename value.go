@@ -62,7 +62,7 @@ func (p *jPrimitive) JavaValue() C.jvalue {
 }
 
 func (p *jPrimitive) String() string {
-	return fmt.Sprintf("0x%x", p.JavaValue())
+	return fmt.Sprint(p.GoValue())
 }
 
 func (p *jPrimitive) Signature() string {

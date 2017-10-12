@@ -105,7 +105,7 @@ func (a *jArray) JavaValue() C.jvalue {
 }
 
 func (a *jArray) String() string {
-	return fmt.Sprintf("0x%x", a.JavaValue())
+	return fmt.Sprint(a.GoValue())
 }
 
 func (a *jArray) Signature() string {

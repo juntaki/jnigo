@@ -33,7 +33,7 @@ func (a *jString) JavaValue() C.jvalue {
 }
 
 func (a *jString) String() string {
-	return fmt.Sprintf("0x%x", a.JavaValue())
+	return fmt.Sprint(a.GoValue())
 }
 
 func (a *jString) Signature() string {
