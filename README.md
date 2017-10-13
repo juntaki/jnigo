@@ -6,7 +6,7 @@ JNI wrapper for Go
 ### for Debian/Ubuntu
 
 ~~~
-apt install default-jre-headless
+apt install default-jre-headless openjdk-8-jdk
 
 go get github.com/juntaki/jnigo
 ~~~
