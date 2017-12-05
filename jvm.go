@@ -7,7 +7,6 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"runtime"
 	"unsafe"
@@ -34,7 +33,6 @@ func CreateJVM() *JVM {
 }
 
 func freeJVM(jvm *JVM) {
-	fmt.Println("JVM freed")
 	C.free(unsafe.Pointer(jvm.cjvm))
 }
 

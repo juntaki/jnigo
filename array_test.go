@@ -32,12 +32,10 @@ func TestJArray(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		fmt.Println(test)
 		value, err := jvm.newJArray(test[0])
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println(value)
 
 		orig := fmt.Sprintln(test[0])
 		goval := fmt.Sprintln(value.GoValue())

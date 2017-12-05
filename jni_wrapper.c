@@ -7,10 +7,17 @@ JVM* createJVM() {
         printf("JNI Create failed: malloc\n");
         return NULL;
     }
-
+    jint ret;
     JavaVMInitArgs vm_args;
+    memset(&vm_args, 0, sizeof(vm_args));
+    JavaVMOption options[2];
     vm_args.version = JNI_VERSION_1_8;
-    jint ret = JNI_GetDefaultJavaVMInitArgs(&vm_args);
+    vm_args.nOptions = 2;
+    vm_args.options = options;
+    options[0].optionString = "-Djava.class.path=./test";
+    options[1].optionString = "-Djava.library.path=;";
+    vm_args.options = options;
+
     if (ret != JNI_OK) {
         printf("JNI Create failed: GetDefaultJavaVMInitArgs ret=%d\n", ret);
         return NULL;

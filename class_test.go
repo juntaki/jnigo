@@ -1,7 +1,6 @@
 package jnigo
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -13,9 +12,7 @@ func TestJClass(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		fmt.Println(test)
 		value, err := jvm.NewJClass(test[0].(string), test[1].([]JObject))
-		fmt.Println(value)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -24,11 +21,10 @@ func TestJClass(t *testing.T) {
 			t.Fatal(value.GoValue())
 		}
 
-		v, err := value.CallFunction("length", "()I", []JObject{})
+		_, err = value.CallFunction("length", "()I", []JObject{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("length", v.GoValue())
 	}
 }
 
@@ -45,7 +41,7 @@ func TestJClassMethod(t *testing.T) {
 		[]string{"mvlong", "()J"},
 		[]string{"mvfloat", "()F"},
 		[]string{"mvdouble", "()D"},
-		[]string{"mvclass", "()LTestClass;"},
+		[]string{"mvclass", "()LTestSubClass;"},
 
 		[]string{"maboolean", "()[Z"},
 		[]string{"mabyte", "()[B"},
@@ -55,7 +51,7 @@ func TestJClassMethod(t *testing.T) {
 		[]string{"malong", "()[J"},
 		[]string{"mafloat", "()[F"},
 		[]string{"madouble", "()[D"},
-		[]string{"maclass", "()[LTestClass;"},
+		[]string{"maclass", "()[LTestSubClass;"},
 	}
 
 	value, err := jvm.NewJClass(clazz, []JObject{})
@@ -68,11 +64,10 @@ func TestJClassMethod(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		v, err := value.CallFunction(test[0], test[1], []JObject{})
+		_, err := value.CallFunction(test[0], test[1], []JObject{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 
@@ -89,7 +84,7 @@ func TestJClassStaticMethod(t *testing.T) {
 		[]string{"smvlong", "()J"},
 		[]string{"smvfloat", "()F"},
 		[]string{"smvdouble", "()D"},
-		[]string{"smvclass", "()LTestClass;"},
+		[]string{"smvclass", "()LTestSubClass;"},
 
 		[]string{"smaboolean", "()[Z"},
 		[]string{"smabyte", "()[B"},
@@ -99,15 +94,14 @@ func TestJClassStaticMethod(t *testing.T) {
 		[]string{"smalong", "()[J"},
 		[]string{"smafloat", "()[F"},
 		[]string{"smadouble", "()[D"},
-		[]string{"smaclass", "()[LTestClass;"},
+		[]string{"smaclass", "()[LTestSubClass;"},
 	}
 
 	for _, test := range testArray {
-		v, err := jvm.CallStaticFunction(clazz, test[0], test[1], []JObject{})
+		_, err := jvm.CallStaticFunction(clazz, test[0], test[1], []JObject{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 
@@ -124,7 +118,7 @@ func TestJClassGetField(t *testing.T) {
 		[]string{"vlong", "J"},
 		[]string{"vfloat", "F"},
 		[]string{"vdouble", "D"},
-		[]string{"vclass", "LTestClass;"},
+		[]string{"vclass", "LTestSubClass;"},
 
 		[]string{"aboolean", "[Z"},
 		[]string{"abyte", "[B"},
@@ -134,7 +128,7 @@ func TestJClassGetField(t *testing.T) {
 		[]string{"along", "[J"},
 		[]string{"afloat", "[F"},
 		[]string{"adouble", "[D"},
-		[]string{"aclass", "[LTestClass;"},
+		[]string{"aclass", "[LTestSubClass;"},
 	}
 
 	value, err := jvm.NewJClass(clazz, []JObject{})
@@ -147,11 +141,10 @@ func TestJClassGetField(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		v, err := value.GetField(test[0], test[1])
+		_, err := value.GetField(test[0], test[1])
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 

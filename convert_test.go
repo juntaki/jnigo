@@ -28,12 +28,10 @@ func TestConvertArray(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		fmt.Println(test)
 		value, err := jvm.Convert(test[0])
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println(value)
 
 		orig := fmt.Sprintln(test[0])
 		goval := fmt.Sprintln(value.GoValue())
@@ -71,9 +69,7 @@ func TestConvertPrimitive(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		fmt.Println(test)
 		value, err := jvm.Convert(test[0])
-		fmt.Println(value)
 		if err != nil {
 			t.Fatal(err)
 		}

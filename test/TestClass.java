@@ -1,8 +1,3 @@
-class MyException extends Exception {
-    public String errMsg;
-    MyException(String msg) { errMsg = msg; }
-}
-
 public class TestClass {
     TestClass() {
         vboolean = true;
@@ -13,7 +8,7 @@ public class TestClass {
         vlong = 10;
         vfloat = 10;
         vdouble = 10;
-        vclass = this;
+        vclass = new TestSubClass();
 
         aboolean = new boolean[]{true, false};
         abyte = new byte[]{10, 11};
@@ -23,7 +18,7 @@ public class TestClass {
         along = new long[]{10, 11};
         afloat = new float[]{10, 11};
         adouble = new double[]{10, 11};
-        aclass = new TestClass[]{this, this};
+        aclass = new TestSubClass[]{vclass, vclass};
     }
 
     TestClass(int a) {
@@ -37,7 +32,7 @@ public class TestClass {
     public long vlong;
     public float vfloat;
     public double vdouble;
-    public TestClass vclass;
+    public TestSubClass vclass;
 
     public boolean[] aboolean;
     public byte[] abyte;
@@ -47,7 +42,7 @@ public class TestClass {
     public long[] along;
     public float[] afloat;
     public double[] adouble;
-    public TestClass[] aclass;
+    public TestSubClass[] aclass;
 
     public static boolean svboolean = false;
     public static byte svbyte = 10;
@@ -57,7 +52,7 @@ public class TestClass {
     public static long svlong = 10;
     public static float svfloat = 10;
     public static double svdouble = 10;
-    public static TestClass svclass;
+    public static TestSubClass svclass;
 
     public static boolean[] saboolean = new boolean[]{true, false};
     public static byte[] sabyte = new byte[]{10, 11};
@@ -67,7 +62,7 @@ public class TestClass {
     public static long[] salong = new long[]{10, 11};
     public static float[] safloat = new float[]{10, 11};
     public static double[] sadouble = new double[]{10, 11};
-    public static TestClass[] saclass = new TestClass[]{};
+    public static TestSubClass[] saclass = new TestSubClass[]{};
 
     public boolean mvboolean(){ return vboolean; }
     public byte mvbyte(){ return vbyte; }
@@ -77,7 +72,7 @@ public class TestClass {
     public long mvlong(){ return vlong; }
     public float mvfloat(){ return vfloat; }
     public double mvdouble(){ return vdouble; }
-    public TestClass mvclass(){ return vclass; }
+    public TestSubClass mvclass(){ return vclass; }
 
     public boolean[] maboolean() { return aboolean; }
     public byte[] mabyte() { return abyte; }
@@ -87,7 +82,7 @@ public class TestClass {
     public long[] malong() { return along; }
     public float[] mafloat() { return afloat; }
     public double[] madouble() { return adouble; }
-    public TestClass[] maclass() { return aclass; }
+    public TestSubClass[] maclass() { return aclass; }
 
     public static boolean smvboolean(){ return svboolean; }
     public static byte smvbyte(){ return svbyte; }
@@ -97,7 +92,7 @@ public class TestClass {
     public static long smvlong(){ return svlong; }
     public static float smvfloat(){ return svfloat; }
     public static double smvdouble(){ return svdouble; }
-    public static TestClass smvclass(){ return svclass; }
+    public static TestSubClass smvclass(){ return svclass; }
 
     public static boolean[] smaboolean() { return saboolean; }
     public static byte[] smabyte() { return sabyte; }
@@ -107,39 +102,6 @@ public class TestClass {
     public static long[] smalong() { return salong; }
     public static float[] smafloat() { return safloat; }
     public static double[] smadouble() { return sadouble; }
-    public static TestClass[] smaclass() { return saclass; }
-
-    public static int TestStaticVariable;
-
-    public <T> T TestGenericMethod(T ret) {
-        return ret;
-    }
-
-    // function
-    public static void TestStaticMethod() {
-        System.out.println("succeseed of calling.");
-    }
-
-    public static int TestStaticMethod(int a) {
-        System.out.printf("a: %d\n", a);
-        return a;
-    }
-
-    public static void TestStaticMethod(int a[]) {
-        System.out.printf("a[0]: %d\n", a[0]);
-    }
-
-    public void TestMethod() {
-        System.out.println("succeseed of calling.");
-    }
-
-    public int TestMethod2() {
-        return vint;
-    }
-
-    public int TestMethod3() throws MyException {
-        MyException e = new MyException("エラー発生!!");
-        throw e;
-    }
+    public static TestSubClass[] smaclass() { return saclass; }
 }
 
