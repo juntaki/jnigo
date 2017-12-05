@@ -1,4 +1,5 @@
 #include "jni_wrapper.h"
+#include <stdlib.h>
 
 JVM* createJVM() {
     JVM *jvm;
@@ -10,12 +11,16 @@ JVM* createJVM() {
     jint ret;
     JavaVMInitArgs vm_args;
     memset(&vm_args, 0, sizeof(vm_args));
-    JavaVMOption options[2];
+    JavaVMOption options[1];
     vm_args.version = JNI_VERSION_1_8;
-    vm_args.nOptions = 2;
+    vm_args.nOptions = 1;
     vm_args.options = options;
-    options[0].optionString = "-Djava.class.path=./test";
-    options[1].optionString = "-Djava.library.path=;";
+
+    char* classpath = getenv("CLASSPATH");
+    int optlen = strlen(classpath) + 30;
+    char optstr[optlen];
+    strcpy(optstr, "-Djava.class.path=");
+    options[0].optionString = strcat(optstr, classpath);
     vm_args.options = options;
 
     if (ret != JNI_OK) {
