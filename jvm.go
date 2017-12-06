@@ -120,28 +120,28 @@ func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject
 	switch retsig {
 	case SignatureBoolean:
 		ret := C.CallStaticBooleanMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		return jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
 		ret := C.CallStaticByteMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		return jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
 		ret := C.CallStaticCharMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		return jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
 		ret := C.CallStaticShortMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		return jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
 		ret := C.CallStaticIntMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		return jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
 		ret := C.CallStaticLongMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		return jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
 		ret := C.CallStaticFloatMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		return jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
 		ret := C.CallStaticDoubleMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		return jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureVoid:
 		C.CallStaticVoidMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
 		return nil, nil

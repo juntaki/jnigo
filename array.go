@@ -233,5 +233,5 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 
 func (jvm *JVM) destroyjArray(jobject *jArray) {
 	C.DeleteGlobalRef(jvm.env(), jobject.globalRef)
-	C.free(unsafe.Pointer(jobject.javavalue.jvaluep()))
+	jobject.javavalue.free()
 }

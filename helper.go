@@ -19,6 +19,9 @@ type CJvalue struct {
 func (v CJvalue) unsafePointer() unsafe.Pointer {
 	return unsafe.Pointer(v.javavalue)
 }
+func (v CJvalue) free() {
+	C.free(v.unsafePointer())
+}
 
 // Raw value
 func (v CJvalue) jvalue() C.jvalue {

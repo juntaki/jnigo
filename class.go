@@ -27,28 +27,28 @@ func (c *JClass) GetField(field, sig string) (JObject, error) {
 	switch string(sig[0]) {
 	case SignatureBoolean:
 		ret := C.GetBooleanField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
 		ret := C.GetByteField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
 		ret := C.GetCharField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
 		ret := C.GetShortField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
 		ret := C.GetIntField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
 		ret := C.GetLongField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
 		ret := C.GetFloatField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
 		ret := C.GetDoubleField(c.jvm.env(), c.javavalue.jobject(), fieldID)
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureArray:
 		ret := C.GetObjectField(c.jvm.env(), c.javavalue.jobject(), fieldID)
 		return c.jvm.newJArrayFromJava(&ret, sig)
@@ -113,35 +113,35 @@ func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, erro
 	case SignatureBoolean:
 		ret := C.CallBooleanMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
 		ret := C.CallByteMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
 		ret := C.CallCharMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
 		ret := C.CallShortMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
 		ret := C.CallIntMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
 		ret := C.CallLongMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
 		ret := C.CallFloatMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
 		ret := C.CallDoubleMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
-		return c.jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		return c.jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureVoid:
 		C.CallVoidMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
@@ -234,5 +234,5 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 
 func (jvm *JVM) destroyJClass(jobject *JClass) {
 	C.DeleteGlobalRef(jvm.env(), jobject.globalRef)
-	C.free(unsafe.Pointer(jobject.javavalue.jvaluep()))
+	jobject.javavalue.free()
 }

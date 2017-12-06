@@ -69,9 +69,31 @@ func (p *jPrimitive) Signature() string {
 	return p.signature
 }
 
-func (jvm *JVM) newJPrimitiveFromJava(jinitialValue unsafe.Pointer, sig string) (*jPrimitive, error) {
+func (jvm *JVM) newJPrimitiveFromJava(initialValue interface{}, sig string) (*jPrimitive, error) {
 	javavalue := C.calloc_jvalue()
-	C.memcpy(unsafe.Pointer(javavalue), jinitialValue, C.size_t(SizeOf[sig]))
+	var src unsafe.Pointer
+	src = unsafe.Pointer(&initialValue)
+	switch value := initialValue.(type) {
+	case C.jboolean:
+		src = unsafe.Pointer(&value)
+	case C.jbyte:
+		src = unsafe.Pointer(&value)
+	case C.jchar:
+		src = unsafe.Pointer(&value)
+	case C.jshort:
+		src = unsafe.Pointer(&value)
+	case C.jint:
+		src = unsafe.Pointer(&value)
+	case C.jlong:
+		src = unsafe.Pointer(&value)
+	case C.jfloat:
+		src = unsafe.Pointer(&value)
+	case C.jdouble:
+		src = unsafe.Pointer(&value)
+	default:
+		return nil, errors.New("unknown type")
+	}
+	C.memcpy(unsafe.Pointer(javavalue), src, C.size_t(SizeOf[sig]))
 
 	ret := &jPrimitive{
 		signature: sig,
@@ -131,5 +153,5 @@ func (jvm *JVM) newJPrimitive(initialValue interface{}) (*jPrimitive, error) {
 }
 
 func destroyjPrimitive(jprimitive *jPrimitive) {
-	C.free(jprimitive.javavalue.unsafePointer())
+	jprimitive.javavalue.free()
 }
