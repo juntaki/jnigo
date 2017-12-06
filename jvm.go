@@ -20,7 +20,7 @@ type JVM struct {
 }
 
 func (jvm *JVM) env() *C.JNIEnv {
-	return jvm.env()
+	return jvm.cjvm.env
 }
 
 func CreateJVM() *JVM {
