@@ -11,13 +11,13 @@ import (
 type jString struct {
 	JObject
 	jvm       *JVM
-	javavalue *C.jvalue
+	javavalue CJvalue
 	signature string
 	globalRef C.jobject
 }
 
 func (a *jString) GoValue() interface{} {
-	jstr := C.jobject_to_jstring(*C.jvalue_to_jobject(a.javavalue))
+	jstr := a.javavalue.jstring()
 	jlength := C.GetStringLength(a.jvm.cjvm.env, jstr)
 	start := C.jsize(0)
 	buf := C.calloc_jchar_array(C.size_t(jlength))
@@ -29,7 +29,7 @@ func (a *jString) GoValue() interface{} {
 }
 
 func (a *jString) JavaValue() C.jvalue {
-	return *a.javavalue
+	return a.javavalue.jvalue()
 }
 
 func (a *jString) String() string {
@@ -43,7 +43,7 @@ func (a *jString) Signature() string {
 func (jvm *JVM) newjStringFromJava(jobj C.jobject) (*jString, error) {
 	ret := &jString{
 		jvm:       jvm,
-		javavalue: C.calloc_jvalue_jobject(&jobj),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&jobj)),
 		signature: "Ljava/lang/String;",
 		globalRef: C.NewGlobalRef(jvm.cjvm.env, jobj),
 	}
@@ -58,7 +58,7 @@ func (jvm *JVM) newjString(str string) (*jString, error) {
 
 	ret := &jString{
 		jvm:       jvm,
-		javavalue: C.calloc_jvalue_jobject(&jobj),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&jobj)),
 		signature: "Ljava/lang/String;",
 		globalRef: C.NewGlobalRef(jvm.cjvm.env, jstr),
 	}
@@ -68,5 +68,5 @@ func (jvm *JVM) newjString(str string) (*jString, error) {
 
 func (jvm *JVM) destroyjString(jobject *jString) {
 	C.DeleteGlobalRef(jvm.cjvm.env, jobject.globalRef)
-	C.free(unsafe.Pointer(jobject.javavalue))
+	C.free(unsafe.Pointer(jobject.javavalue.jvaluep()))
 }
