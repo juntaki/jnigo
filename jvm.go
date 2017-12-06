@@ -19,6 +19,10 @@ type JVM struct {
 	cjvm *C.JVM
 }
 
+func (jvm *JVM) env() *C.JNIEnv {
+	return jvm.cjvm.env
+}
+
 func CreateJVM() *JVM {
 	cjvm := C.createJVM()
 	if cjvm == nil {
@@ -61,6 +65,7 @@ const (
 	SignatureLongArray    = SignatureArray + SignatureLong
 	SignatureFloatArray   = SignatureArray + SignatureFloat
 	SignatureDoubleArray  = SignatureArray + SignatureDouble
+	SignatureClassArray   = SignatureArray + SignatureClass
 )
 
 var SizeOf = map[string]int{
@@ -86,7 +91,7 @@ type JObject interface {
 var funcSignagure = regexp.MustCompile(`\((.*)\)((.).*)`)
 
 func (jvm *JVM) ExceptionCheck() error {
-	errExist := C.jboolean_to_uint8(C.ExceptionCheck(jvm.cjvm.env))
+	errExist := (uint8)(C.ExceptionCheck(jvm.cjvm.env))
 	if errExist != 0 {
 		C.ExceptionDescribe(jvm.cjvm.env)
 		return errors.New("JNI Exception")

@@ -15,18 +15,7 @@ jvalue *calloc_jvalue();
 jvalue *calloc_jvalue_array(size_t len);
 jvalue *calloc_jvalue_jobject(jobject *val);
 
-jboolean *jvalue_to_jboolean(jvalue *value);
-jbyte *jvalue_to_jbyte(jvalue *value);
-jchar *jvalue_to_jchar(jvalue *value);
-jshort *jvalue_to_jshort(jvalue *value);
-jint *jvalue_to_jint(jvalue *value);
-jlong *jvalue_to_jlong(jvalue *value);
-jfloat *jvalue_to_jfloat(jvalue *value);
-jdouble *jvalue_to_jdouble(jvalue *value);
-jobject *jvalue_to_jobject(jvalue *jvalue);
-
 jobject *jarray_to_jobject(jarray *jarray);
-jarray *jobject_to_jarray(jobject *val);
 
 jboolean *calloc_jboolean_array(size_t len);
 jbyte *calloc_jbyte_array(size_t len);
@@ -38,15 +27,6 @@ jfloat *calloc_jfloat_array(size_t len);
 jdouble *calloc_jdouble_array(size_t len);
 jobject *calloc_jobject_array(size_t len);
 
-jbooleanArray jobject_to_jbooleanArray(jobject val);
-jbyteArray jobject_to_jbyteArray(jobject val);
-jcharArray jobject_to_jcharArray(jobject val);
-jshortArray jobject_to_jshortArray(jobject val);
-jintArray jobject_to_jintArray(jobject val);
-jlongArray jobject_to_jlongArray(jobject val);
-jfloatArray jobject_to_jfloatArray(jobject val);
-jdoubleArray jobject_to_jdoubleArray(jobject val);
-jobjectArray jobject_to_jobjectArray(jobject val);
 jobject jbooleanArray_to_jobject(jbooleanArray val);
 jobject jbyteArray_to_jobject(jbyteArray val);
 jobject jcharArray_to_jobject(jcharArray val);
@@ -58,24 +38,6 @@ jobject jdoubleArray_to_jobject(jdoubleArray val);
 jobject jobjectArray_to_jobject(jobjectArray val);
 
 jobject jstring_to_jobject(jstring val);
-jstring jobject_to_jstring(jobject val);
-
-uint8_t jboolean_to_uint8(jboolean val);
-int8_t jbyte_to_int8(jbyte val);
-uint16_t jchar_to_uint16(jchar val);
-int16_t jshort_to_int16(jshort val);
-int32_t jint_to_int32(jint val);
-int64_t jlong_to_int64(jlong val);
-float jfloat_to_float(jfloat val);
-double jdouble_to_double(jdouble val);
-jboolean uint8_to_jboolean(uint8_t val);
-jbyte int8_to_jbyte(int8_t val);
-jchar uint16_to_jchar(uint16_t val);
-jshort int16_to_jshort(int16_t val);
-jint int32_to_jint(int32_t val);
-jlong int64_to_jlong(int64_t val);
-jfloat float_to_jfloat(float val);
-jdouble double_to_jdouble(double val);
 
 // Wrapper functions
 
