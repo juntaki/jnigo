@@ -13,7 +13,7 @@ const intSize = 32 << (^uint(0) >> 63)
 
 type jPrimitive struct {
 	JObject
-	javavalue *C.jvalue
+	javavalue CJvalue
 	signature string
 }
 
@@ -21,35 +21,35 @@ func (p *jPrimitive) GoValue() interface{} {
 	switch p.Signature() {
 	case SignatureBoolean:
 		var value bool
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureByte:
 		var value byte
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureChar:
 		var value uint16
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureShort:
 		var value int16
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureInt:
 		var value int32
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureLong:
 		var value int64
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureFloat:
 		var value float32
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureDouble:
 		var value float64
-		C.memcpy(unsafe.Pointer(&value), unsafe.Pointer(p.javavalue), C.size_t(unsafe.Sizeof(value)))
+		C.memcpy(unsafe.Pointer(&value), p.javavalue.unsafePointer(), C.size_t(unsafe.Sizeof(value)))
 		return value
 	case SignatureVoid:
 		return nil
@@ -58,7 +58,7 @@ func (p *jPrimitive) GoValue() interface{} {
 }
 
 func (p *jPrimitive) JavaValue() C.jvalue {
-	return *p.javavalue
+	return p.javavalue.jvalue()
 }
 
 func (p *jPrimitive) String() string {
@@ -75,7 +75,7 @@ func (jvm *JVM) newJPrimitiveFromJava(jinitialValue unsafe.Pointer, sig string) 
 
 	ret := &jPrimitive{
 		signature: sig,
-		javavalue: javavalue,
+		javavalue: NewCJvalue(javavalue),
 	}
 	runtime.SetFinalizer(ret, destroyjPrimitive)
 	return ret, nil
@@ -124,16 +124,12 @@ func (jvm *JVM) newJPrimitive(initialValue interface{}) (*jPrimitive, error) {
 	}
 	ret := &jPrimitive{
 		signature: sig,
-		javavalue: javavalue,
+		javavalue: NewCJvalue(javavalue),
 	}
 	runtime.SetFinalizer(ret, destroyjPrimitive)
 	return ret, nil
 }
 
 func destroyjPrimitive(jprimitive *jPrimitive) {
-	C.free(unsafe.Pointer(jprimitive.javavalue))
-}
-
-func assign(dest, src unsafe.Pointer) {
-	*(*unsafe.Pointer)(dest) = *(*unsafe.Pointer)(src)
+	C.free(jprimitive.javavalue.unsafePointer())
 }
