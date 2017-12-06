@@ -213,7 +213,8 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 		}
 		value := C.NewObjectArray(jvm.cjvm.env, length, jclass.clazz, nil)
 		for i, val := range t {
-			C.SetObjectArrayElement(jvm.cjvm.env, value, C.jsize(i), *C.jvalue_to_jobject(val.(*JClass).javavalue))
+			jv := val.JavaValue()
+			C.SetObjectArrayElement(jvm.cjvm.env, value, C.jsize(i), *C.jvalue_to_jobject(&jv))
 		}
 		array = C.jobjectArray_to_jobject(value)
 		sig = SignatureArray + t[0].Signature()
