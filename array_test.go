@@ -8,8 +8,9 @@ import (
 func TestJArray(t *testing.T) {
 	jvm := CreateJVM()
 
-	//clazz := "TestClass"
-	//gojclass, _ := jvm.NewJClass(clazz, []JObject{})
+	// clazz := "TestSubClass"
+	// gojclass, _ := jvm.NewJClass(clazz, []JObject{})
+	// gojclass2, _ := jvm.NewJClass(clazz, []JObject{})
 
 	testArray := [][]interface{}{
 		[]interface{}{[]bool{false, false}, SignatureArray + SignatureBoolean},
@@ -28,7 +29,7 @@ func TestJArray(t *testing.T) {
 		[]interface{}{[]float32{1000.0, 1000.0}, SignatureArray + SignatureFloat},
 		[]interface{}{[]float64{1.0, 1.0}, SignatureArray + SignatureDouble},
 		[]interface{}{[]float64{1000.0, 1000.0}, SignatureArray + SignatureDouble},
-		//[]interface{}{[]JObject{gojclass, gojclass}, SignatureArray + gojclass.Signature()},
+		//[]interface{}{[]JObject{gojclass, gojclass2}, SignatureArray + gojclass.Signature()},
 	}
 
 	for _, test := range testArray {

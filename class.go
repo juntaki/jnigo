@@ -4,7 +4,6 @@ package jnigo
 import "C"
 import (
 	"errors"
-	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -114,6 +113,7 @@ func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, erro
 	defer C.free(unsafe.Pointer(csig))
 
 	methodID := C.GetMethodID(c.jvm.cjvm.env, c.clazz, cmethod, csig)
+
 	C.ExceptionDescribe(c.jvm.cjvm.env)
 
 	retsig := funcSignagure.FindStringSubmatch(sig)[3]
@@ -163,6 +163,9 @@ func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, erro
 	case SignatureClass:
 		ret := C.CallObjectMethodA(c.jvm.cjvm.env, *C.jvalue_to_jobject(c.javavalue),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if retsigFull == "Ljava/lang/String;" {
+			return c.jvm.newjStringFromJava(ret)
+		}
 		return c.jvm.newJClassFromJava(ret, retsigFull)
 	default:
 		return nil, errors.New("Unknown return signature")
@@ -178,7 +181,11 @@ func (c *JClass) JavaValue() C.jvalue {
 }
 
 func (c *JClass) String() string {
-	return fmt.Sprintf("0x%x", c.JavaValue())
+	val, err := c.CallFunction("toString", "()Ljava/lang/String;", []JObject{})
+	if err != nil {
+		return err.Error()
+	}
+	return val.GoValue().(string)
 }
 
 func (c *JClass) Signature() string {

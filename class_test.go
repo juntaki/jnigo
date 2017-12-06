@@ -25,6 +25,9 @@ func TestJClass(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		if value.String() != "" {
+			t.Fatal(value.String())
+		}
 	}
 }
 
@@ -160,17 +163,17 @@ func TestJClassSetField(t *testing.T) {
 	golong, _ := jvm.newJPrimitive(int64(20))
 	gofloat, _ := jvm.newJPrimitive(float32(20))
 	godouble, _ := jvm.newJPrimitive(float64(20))
-	// gojclass, _ := jvm.NewJClass(clazz, []JObject{})
+	gojclass, _ := jvm.NewJClass("TestSubClass", []JObject{})
 
-	// goabool, _ := jvm.newJArray([]bool{true, false})
-	// goabyte, _ := jvm.newJArray([]byte{100, 100})
-	// goachar, _ := jvm.newJArray([]uint16{10000, 10000})
-	// goashort, _ := jvm.newJArray([]int16{10000, 10000})
-	// goaint, _ := jvm.newJArray([]int32{10000, 10000})
-	// goalong, _ := jvm.newJArray([]int64{10000, 10000})
-	// goafloat, _ := jvm.newJArray([]float32{1000.0, 1000.0})
-	// goadouble, _ := jvm.newJArray([]float64{1000.0, 1000.0})
-	//goajclass, _ := jvm.newJArray([]JClass{1000.0, 1000.0})
+	goabool, _ := jvm.newJArray([]bool{true, false})
+	goabyte, _ := jvm.newJArray([]byte{100, 100})
+	goachar, _ := jvm.newJArray([]uint16{10000, 10000})
+	goashort, _ := jvm.newJArray([]int16{10000, 10000})
+	goaint, _ := jvm.newJArray([]int32{10000, 10000})
+	goalong, _ := jvm.newJArray([]int64{10000, 10000})
+	goafloat, _ := jvm.newJArray([]float32{1000.0, 1000.0})
+	goadouble, _ := jvm.newJArray([]float64{1000.0, 1000.0})
+	//goajclass, _ := jvm.newJArray([]JClass{gojclass, gojclass})
 
 	testArray := [][]interface{}{
 		[]interface{}{"vboolean", gobool},
@@ -181,16 +184,16 @@ func TestJClassSetField(t *testing.T) {
 		[]interface{}{"vlong", golong},
 		[]interface{}{"vfloat", gofloat},
 		[]interface{}{"vdouble", godouble},
-		//[]interface{}{"vclass", gojclass},
+		[]interface{}{"vclass", gojclass},
 
-		// []interface{}{"aboolean", goabool},
-		// []interface{}{"abyte", goabyte},
-		// []interface{}{"achar", goachar},
-		// []interface{}{"ashort", goashort},
-		// []interface{}{"aint", goaint},
-		// []interface{}{"along", goalong},
-		// []interface{}{"afloat", goafloat},
-		// []interface{}{"adouble", goadouble},
+		[]interface{}{"aboolean", goabool},
+		[]interface{}{"abyte", goabyte},
+		[]interface{}{"achar", goachar},
+		[]interface{}{"ashort", goashort},
+		[]interface{}{"aint", goaint},
+		[]interface{}{"along", goalong},
+		[]interface{}{"afloat", goafloat},
+		[]interface{}{"adouble", goadouble},
 		//[]interface{}{"aclass", goajclass},
 	}
 

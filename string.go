@@ -40,6 +40,17 @@ func (a *jString) Signature() string {
 	return a.signature
 }
 
+func (jvm *JVM) newjStringFromJava(jobj C.jobject) (*jString, error) {
+	ret := &jString{
+		jvm:       jvm,
+		javavalue: C.calloc_jvalue_jobject(&jobj),
+		signature: "Ljava/lang/String;",
+		globalRef: C.NewGlobalRef(jvm.cjvm.env, jobj),
+	}
+	runtime.SetFinalizer(ret, jvm.destroyjString)
+	return ret, nil
+}
+
 func (jvm *JVM) newjString(str string) (*jString, error) {
 	cstr := C.CString(str) // will be freed by JNI??
 	jstr := C.NewString(jvm.cjvm.env, (*C.jchar)(unsafe.Pointer(cstr)), C.jsize(len(str)))
