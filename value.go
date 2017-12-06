@@ -57,8 +57,8 @@ func (p *jPrimitive) GoValue() interface{} {
 	return nil
 }
 
-func (p *jPrimitive) JavaValue() C.jvalue {
-	return p.javavalue.jvalue()
+func (p *jPrimitive) JavaValue() CJvalue {
+	return p.javavalue
 }
 
 func (p *jPrimitive) String() string {

@@ -67,8 +67,7 @@ func (c *JClass) SetField(field string, val JObject) error {
 	defer C.free(unsafe.Pointer(csig))
 	fieldID := C.GetFieldID(c.jvm.cjvm.env, c.clazz, cfield, csig)
 
-	javaValue := val.JavaValue()
-	jvalue := NewCJvalue(&javaValue)
+	jvalue := val.JavaValue()
 
 	switch string(val.Signature()[0]) {
 	case SignatureBoolean:
@@ -167,8 +166,8 @@ func (c *JClass) GoValue() interface{} {
 	return c
 }
 
-func (c *JClass) JavaValue() C.jvalue {
-	return c.javavalue.jvalue()
+func (c *JClass) JavaValue() CJvalue {
+	return c.javavalue
 }
 
 func (c *JClass) JValue() CJvalue {

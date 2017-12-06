@@ -42,17 +42,25 @@ func (jvm *JVM) destroyJVM() {
 }
 
 const (
-	SignatureBoolean = "Z"
-	SignatureByte    = "B"
-	SignatureChar    = "C"
-	SignatureShort   = "S"
-	SignatureInt     = "I"
-	SignatureLong    = "J"
-	SignatureFloat   = "F"
-	SignatureDouble  = "D"
-	SignatureArray   = "["
-	SignatureVoid    = "V"
-	SignatureClass   = "L"
+	SignatureBoolean      = "Z"
+	SignatureByte         = "B"
+	SignatureChar         = "C"
+	SignatureShort        = "S"
+	SignatureInt          = "I"
+	SignatureLong         = "J"
+	SignatureFloat        = "F"
+	SignatureDouble       = "D"
+	SignatureArray        = "["
+	SignatureVoid         = "V"
+	SignatureClass        = "L"
+	SignatureBooleanArray = SignatureArray + SignatureBoolean
+	SignatureByteArray    = SignatureArray + SignatureByte
+	SignatureCharArray    = SignatureArray + SignatureChar
+	SignatureShortArray   = SignatureArray + SignatureShort
+	SignatureIntArray     = SignatureArray + SignatureInt
+	SignatureLongArray    = SignatureArray + SignatureLong
+	SignatureFloatArray   = SignatureArray + SignatureFloat
+	SignatureDoubleArray  = SignatureArray + SignatureDouble
 )
 
 var SizeOf = map[string]int{
@@ -72,7 +80,7 @@ var SizeOf = map[string]int{
 type JObject interface {
 	Signature() string
 	GoValue() interface{}
-	JavaValue() C.jvalue
+	JavaValue() CJvalue
 }
 
 var funcSignagure = regexp.MustCompile(`\((.*)\)((.).*)`)
@@ -152,7 +160,7 @@ func jObjectArrayTojvalueArray(args []JObject) *C.jvalue {
 	jvalueArray := make([]C.jvalue, len(args))
 
 	for i, arg := range args {
-		jvalueArray[i] = arg.JavaValue()
+		jvalueArray[i] = arg.JavaValue().jvalue()
 	}
 	return (*C.jvalue)(unsafe.Pointer(&jvalueArray[0]))
 }

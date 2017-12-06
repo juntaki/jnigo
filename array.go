@@ -99,8 +99,8 @@ func (a *jArray) GoValue() interface{} {
 	}
 }
 
-func (a *jArray) JavaValue() C.jvalue {
-	return a.javavalue.jvalue()
+func (a *jArray) JavaValue() CJvalue {
+	return a.javavalue
 }
 
 func (a *jArray) String() string {
@@ -212,8 +212,7 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 		}
 		value := C.NewObjectArray(jvm.cjvm.env, length, jclass.clazz, nil)
 		for i, val := range t {
-			jv := val.JavaValue()
-			C.SetObjectArrayElement(jvm.cjvm.env, value, C.jsize(i), *C.jvalue_to_jobject(&jv))
+			C.SetObjectArrayElement(jvm.cjvm.env, value, C.jsize(i), val.JavaValue().jobject())
 		}
 		array = C.jobjectArray_to_jobject(value)
 		sig = SignatureArray + t[0].Signature()

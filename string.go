@@ -28,8 +28,8 @@ func (a *jString) GoValue() interface{} {
 	return C.GoString((*C.char)(unsafe.Pointer(buf)))
 }
 
-func (a *jString) JavaValue() C.jvalue {
-	return a.javavalue.jvalue()
+func (a *jString) JavaValue() CJvalue {
+	return a.javavalue
 }
 
 func (a *jString) String() string {
