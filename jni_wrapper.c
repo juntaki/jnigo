@@ -8,7 +8,6 @@ JVM* createJVM() {
         printf("JNI Create failed: malloc\n");
         return NULL;
     }
-    jint ret;
     JavaVMInitArgs vm_args;
     memset(&vm_args, 0, sizeof(vm_args));
     JavaVMOption options[1];
@@ -23,11 +22,7 @@ JVM* createJVM() {
     options[0].optionString = strcat(optstr, classpath);
     vm_args.options = options;
 
-    if (ret != JNI_OK) {
-        printf("JNI Create failed: GetDefaultJavaVMInitArgs ret=%d\n", ret);
-        return NULL;
-    }
-
+    jint ret;
     ret = JNI_CreateJavaVM(&jvm->jvm, (void **)&jvm->env, &vm_args);
     if (ret == JNI_EEXIST) {
         ret = JNI_GetCreatedJavaVMs(&jvm->jvm, 1, NULL);
