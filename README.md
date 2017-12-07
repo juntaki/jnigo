@@ -21,3 +21,11 @@ export CGO_CFLAGS="-I$JAVA_HOME/include -I$JAVA_HOME/include/darwin"
 export CGO_LDFLAGS="-L$JAVA_HOME/jre/lib/server/ -ljvm -lpthread" 
 go get github.com/juntaki/jnigo
 ~~~
+
+### Testing
+
+~~~
+export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/server/
+export CLASSPATH=./test
+go test
+~~~
