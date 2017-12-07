@@ -14,7 +14,7 @@ type JClass struct {
 	javavalue CJvalue
 	signature string
 	globalRef C.jobject
-	clazz     C.jclass
+	clazz     C.jobject
 }
 
 func (c *JClass) GetField(field, sig string) (JObject, error) {
@@ -201,6 +201,8 @@ func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error
 	if clazz == nil {
 		return nil, errors.New("FindClass" + fqcn)
 	}
+	defer C.DeleteLocalRef(jvm.env(), clazz)
+	ret.clazz = C.NewGlobalRef(jvm.env(), clazz)
 
 	runtime.SetFinalizer(ret, jvm.destroyJClass)
 	return ret, nil
@@ -217,6 +219,7 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 	if clazz == nil {
 		return nil, errors.New("FindClass" + fqcn)
 	}
+	defer C.DeleteLocalRef(jvm.env(), clazz)
 	methodID := C.GetMethodID(jvm.env(), clazz, cinit, csig)
 	obj := C.NewObjectA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(args))
 	C.ExceptionDescribe(jvm.env())
@@ -225,7 +228,7 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&obj)),
 		signature: "L" + fqcn + ";",
 		globalRef: C.NewGlobalRef(jvm.env(), obj),
-		clazz:     clazz,
+		clazz:     C.NewGlobalRef(jvm.env(), clazz),
 	}
 
 	runtime.SetFinalizer(ret, jvm.destroyJClass)
@@ -234,5 +237,6 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 
 func (jvm *JVM) destroyJClass(jobject *JClass) {
 	C.DeleteGlobalRef(jvm.env(), jobject.globalRef)
+	C.DeleteGlobalRef(jvm.env(), jobject.clazz)
 	jobject.javavalue.free()
 }

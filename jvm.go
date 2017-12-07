@@ -106,6 +106,7 @@ func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject
 	if clazz == nil {
 		return nil, errors.New("FindClass" + classfqcn)
 	}
+	defer C.DeleteLocalRef(jvm.env(), clazz)
 
 	cmethod := C.CString(method)
 	defer C.free(unsafe.Pointer(cmethod))
