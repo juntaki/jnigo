@@ -111,12 +111,14 @@ func (a *jArray) Signature() string {
 	return a.signature
 }
 
-func (jvm *JVM) newJArrayFromJava(jobject *C.jobject, sig string) (*jArray, error) {
+func (jvm *JVM) newJArrayFromJava(array *C.jobject, sig string) (*jArray, error) {
+	defer C.DeleteLocalRef(jvm.env(), *array)
+	ref := C.NewGlobalRef(jvm.env(), *array)
 	ret := &jArray{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(jobject)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: sig,
-		globalRef: C.NewGlobalRef(jvm.env(), *jobject),
+		globalRef: ref,
 	}
 
 	runtime.SetFinalizer(ret, jvm.destroyjArray)
@@ -220,13 +222,14 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 		return nil, errors.New("unsupported type")
 	}
 
+	defer C.DeleteLocalRef(jvm.env(), array)
+	ref := C.NewGlobalRef(jvm.env(), array)
 	ret := &jArray{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&array)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: sig,
-		globalRef: C.NewGlobalRef(jvm.env(), array),
+		globalRef: ref,
 	}
-
 	runtime.SetFinalizer(ret, jvm.destroyjArray)
 	return ret, nil
 }

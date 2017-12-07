@@ -27,9 +27,6 @@ func (v CJvalue) free() {
 func (v CJvalue) jvalue() C.jvalue {
 	return *v.javavalue
 }
-func (v CJvalue) jvaluep() *C.jvalue {
-	return v.javavalue
-}
 
 // Type cast
 func (v CJvalue) jobject() C.jobject {

@@ -40,12 +40,15 @@ func (a *jString) Signature() string {
 	return a.signature
 }
 
-func (jvm *JVM) newjStringFromJava(jobj C.jobject) (*jString, error) {
+func (jvm *JVM) newjStringFromJava(jstr C.jobject) (*jString, error) {
+	defer C.DeleteLocalRef(jvm.env(), jstr)
+	ref := C.NewGlobalRef(jvm.env(), jstr)
+
 	ret := &jString{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&jobj)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: "Ljava/lang/String;",
-		globalRef: C.NewGlobalRef(jvm.env(), jobj),
+		globalRef: ref,
 	}
 	runtime.SetFinalizer(ret, jvm.destroyjString)
 	return ret, nil
@@ -54,13 +57,14 @@ func (jvm *JVM) newjStringFromJava(jobj C.jobject) (*jString, error) {
 func (jvm *JVM) newjString(str string) (*jString, error) {
 	cstr := C.CString(str) // will be freed by JNI??
 	jstr := C.NewString(jvm.env(), (*C.jchar)(unsafe.Pointer(cstr)), C.jsize(len(str)))
-	jobj := C.jstring_to_jobject(jstr)
+	defer C.DeleteLocalRef(jvm.env(), jstr)
+	ref := C.NewGlobalRef(jvm.env(), jstr)
 
 	ret := &jString{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&jobj)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: "Ljava/lang/String;",
-		globalRef: C.NewGlobalRef(jvm.env(), jstr),
+		globalRef: ref,
 	}
 	runtime.SetFinalizer(ret, jvm.destroyjString)
 	return ret, nil
@@ -68,5 +72,5 @@ func (jvm *JVM) newjString(str string) (*jString, error) {
 
 func (jvm *JVM) destroyjString(jobject *jString) {
 	C.DeleteGlobalRef(jvm.env(), jobject.globalRef)
-	C.free(unsafe.Pointer(jobject.javavalue.jvaluep()))
+	jobject.javavalue.free()
 }

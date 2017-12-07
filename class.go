@@ -187,11 +187,13 @@ func (c *JClass) Signature() string {
 }
 
 func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error) {
+	defer C.DeleteLocalRef(jvm.env(), jobject)
+	ref := C.NewGlobalRef(jvm.env(), jobject)
 	ret := &JClass{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&jobject)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: sig,
-		globalRef: C.NewGlobalRef(jvm.env(), jobject),
+		globalRef: ref,
 	}
 
 	fqcn := sig[1 : len(sig)-1]
@@ -221,13 +223,16 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 	}
 	defer C.DeleteLocalRef(jvm.env(), clazz)
 	methodID := C.GetMethodID(jvm.env(), clazz, cinit, csig)
-	obj := C.NewObjectA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(args))
+	jobject := C.NewObjectA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(args))
 	C.ExceptionDescribe(jvm.env())
+
+	defer C.DeleteLocalRef(jvm.env(), jobject)
+	ref := C.NewGlobalRef(jvm.env(), jobject)
 	ret := &JClass{
 		jvm:       jvm,
-		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&obj)),
+		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: "L" + fqcn + ";",
-		globalRef: C.NewGlobalRef(jvm.env(), obj),
+		globalRef: ref,
 		clazz:     C.NewGlobalRef(jvm.env(), clazz),
 	}
 
