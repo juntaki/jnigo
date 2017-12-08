@@ -1,3 +1,6 @@
+#ifndef JNI_WRAPPER
+#define JNI_WRAPPER
+
 #include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,32 +15,9 @@ typedef struct JVM {
 // Helper
 
 jvalue *calloc_jvalue();
-jvalue *calloc_jvalue_array(size_t len);
 jvalue *calloc_jvalue_jobject(jobject *val);
 
-jobject *jarray_to_jobject(jarray *jarray);
-
-jboolean *calloc_jboolean_array(size_t len);
-jbyte *calloc_jbyte_array(size_t len);
-jchar *calloc_jchar_array(size_t len);
-jshort *calloc_jshort_array(size_t len);
-jint *calloc_jint_array(size_t len);
-jlong *calloc_jlong_array(size_t len);
-jfloat *calloc_jfloat_array(size_t len);
-jdouble *calloc_jdouble_array(size_t len);
-jobject *calloc_jobject_array(size_t len);
-
-jobject jbooleanArray_to_jobject(jbooleanArray val);
-jobject jbyteArray_to_jobject(jbyteArray val);
-jobject jcharArray_to_jobject(jcharArray val);
-jobject jshortArray_to_jobject(jshortArray val);
-jobject jintArray_to_jobject(jintArray val);
-jobject jlongArray_to_jobject(jlongArray val);
-jobject jfloatArray_to_jobject(jfloatArray val);
-jobject jdoubleArray_to_jobject(jdoubleArray val);
-jobject jobjectArray_to_jobject(jobjectArray val);
-
-jobject jstring_to_jobject(jstring val);
+jobject jobject_conv(jobject val);
 
 // Wrapper functions
 
@@ -282,4 +262,4 @@ jlong GetDirectBufferCapacity(JNIEnv *env, jobject buf);
 
 jobjectRefType GetObjectRefType(JNIEnv *env, jobject obj);
 
-
+#endif

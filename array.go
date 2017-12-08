@@ -5,6 +5,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime"
 	"unsafe"
 )
@@ -23,67 +24,67 @@ func (a *jArray) GoValue() interface{} {
 	switch a.Signature()[0:2] {
 	case SignatureBooleanArray:
 		value := make([]bool, length)
-		buf := C.calloc_jboolean_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jbooleanArray := a.javavalue.jbooleanArray()
-		C.GetBooleanArrayRegion(a.jvm.env(), jbooleanArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureBoolean]))
+		if length != 0 {
+			jbooleanArray := a.javavalue.jbooleanArray()
+			C.GetBooleanArrayRegion(a.jvm.env(), jbooleanArray, start, C.jsize(length),
+				(*C.jboolean)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureByteArray:
 		value := make([]byte, length)
-		buf := C.calloc_jbyte_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jbyteArray := a.javavalue.jbyteArray()
-		C.GetByteArrayRegion(a.jvm.env(), jbyteArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureByte]))
+		if length != 0 {
+			jbyteArray := a.javavalue.jbyteArray()
+			C.GetByteArrayRegion(a.jvm.env(), jbyteArray, start, C.jsize(length),
+				(*C.jbyte)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureCharArray:
 		value := make([]uint16, length)
-		buf := C.calloc_jchar_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jcharArray := a.javavalue.jcharArray()
-		C.GetCharArrayRegion(a.jvm.env(), jcharArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureChar]))
+		if length != 0 {
+			jcharArray := a.javavalue.jcharArray()
+			C.GetCharArrayRegion(a.jvm.env(), jcharArray, start, C.jsize(length),
+				(*C.jchar)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureShortArray:
 		value := make([]int16, length)
-		buf := C.calloc_jshort_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jshortArray := a.javavalue.jshortArray()
-		C.GetShortArrayRegion(a.jvm.env(), jshortArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureShort]))
+		if length != 0 {
+			jshortArray := a.javavalue.jshortArray()
+			C.GetShortArrayRegion(a.jvm.env(), jshortArray, start, C.jsize(length),
+				(*C.jshort)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureIntArray:
 		value := make([]int32, length)
-		buf := C.calloc_jint_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jintArray := a.javavalue.jintArray()
-		C.GetIntArrayRegion(a.jvm.env(), jintArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureInt]))
+		if length != 0 {
+			jintArray := a.javavalue.jintArray()
+			C.GetIntArrayRegion(a.jvm.env(), jintArray, start, C.jsize(length),
+				(*C.jint)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureLongArray:
 		value := make([]int64, length)
-		buf := C.calloc_jlong_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jlongArray := a.javavalue.jlongArray()
-		C.GetLongArrayRegion(a.jvm.env(), jlongArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureLong]))
+		if length != 0 {
+			jlongArray := a.javavalue.jlongArray()
+			C.GetLongArrayRegion(a.jvm.env(), jlongArray, start, C.jsize(length),
+				(*C.jlong)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureFloatArray:
 		value := make([]float32, length)
-		buf := C.calloc_jfloat_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jfloatArray := a.javavalue.jfloatArray()
-		C.GetFloatArrayRegion(a.jvm.env(), jfloatArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureFloat]))
+		if length != 0 {
+			jfloatArray := a.javavalue.jfloatArray()
+			C.GetFloatArrayRegion(a.jvm.env(), jfloatArray, start, C.jsize(length),
+				(*C.jfloat)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureDoubleArray:
 		value := make([]float64, length)
-		buf := C.calloc_jdouble_array(C.size_t(length))
-		defer C.free(unsafe.Pointer(buf))
-		jdoubleArray := a.javavalue.jdoubleArray()
-		C.GetDoubleArrayRegion(a.jvm.env(), jdoubleArray, start, C.jsize(length), buf)
-		C.memcpy(unsafe.Pointer(&value[0]), unsafe.Pointer(buf), C.size_t(length*SizeOf[SignatureDouble]))
+		if length != 0 {
+			jdoubleArray := a.javavalue.jdoubleArray()
+			C.GetDoubleArrayRegion(a.jvm.env(), jdoubleArray, start, C.jsize(length),
+				(*C.jdouble)(unsafe.Pointer(&value[0])))
+		}
 		return value
 	case SignatureClassArray:
 		value := make([]JObject, 0)
@@ -130,81 +131,65 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 	var array C.jobject
 	var sig string
 
+	length := C.jsize(reflect.ValueOf(goArray).Len())
 	switch t := goArray.(type) {
 	case []bool:
-		length := C.jsize(len(t))
-		value := C.NewBooleanArray(jvm.env(), length)
-		buf := C.calloc_jboolean_array(C.size_t(len(t)))
-		defer C.free(unsafe.Pointer(buf))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureBoolean]))
-		C.SetBooleanArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jbooleanArray_to_jobject(value)
 		sig = SignatureBooleanArray
+		value := C.NewBooleanArray(jvm.env(), length)
+		if length != 0 {
+			C.SetBooleanArrayRegion(jvm.env(), value, start, length, (*C.jboolean)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []byte:
-		length := C.jsize(len(t))
-		value := C.NewByteArray(jvm.env(), length)
-		buf := C.calloc_jbyte_array(C.size_t(len(t)))
-		defer C.free(unsafe.Pointer(buf))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureByte]))
-		C.SetByteArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jbyteArray_to_jobject(value)
 		sig = SignatureByteArray
+		value := C.NewByteArray(jvm.env(), length)
+		if length != 0 {
+			C.SetByteArrayRegion(jvm.env(), value, start, length, (*C.jbyte)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []uint16:
-		length := C.jsize(len(t))
-		value := C.NewCharArray(jvm.env(), length)
-		buf := C.calloc_jchar_array(C.size_t(len(t)))
-		defer C.free(unsafe.Pointer(buf))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureChar]))
-		C.SetCharArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jcharArray_to_jobject(value)
 		sig = SignatureCharArray
+		value := C.NewCharArray(jvm.env(), length)
+		if length != 0 {
+			C.SetCharArrayRegion(jvm.env(), value, start, length, (*C.jchar)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []int16:
-		length := C.jsize(len(t))
-		value := C.NewShortArray(jvm.env(), length)
-		buf := C.calloc_jshort_array(C.size_t(len(t)))
-		defer C.free(unsafe.Pointer(buf))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureShort]))
-		C.SetShortArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jshortArray_to_jobject(value)
 		sig = SignatureShortArray
+		value := C.NewShortArray(jvm.env(), length)
+		if length != 0 {
+			C.SetShortArrayRegion(jvm.env(), value, start, length, (*C.jshort)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []int32:
-		length := C.jsize(len(t))
-		value := C.NewIntArray(jvm.env(), length)
-		buf := C.calloc_jint_array(C.size_t(len(t)))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureInt]))
-		defer C.free(unsafe.Pointer(buf))
-		C.SetIntArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jintArray_to_jobject(value)
 		sig = SignatureIntArray
+		value := C.NewIntArray(jvm.env(), length)
+		if length != 0 {
+			C.SetIntArrayRegion(jvm.env(), value, start, length, (*C.jint)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []int64:
-		length := C.jsize(len(t))
-		value := C.NewLongArray(jvm.env(), length)
-		buf := C.calloc_jlong_array(C.size_t(len(t)))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureLong]))
-		defer C.free(unsafe.Pointer(buf))
-		C.SetLongArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jlongArray_to_jobject(value)
 		sig = SignatureLongArray
+		value := C.NewLongArray(jvm.env(), length)
+		if length != 0 {
+			C.SetLongArrayRegion(jvm.env(), value, start, length, (*C.jlong)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []float32:
-		length := C.jsize(len(t))
-		value := C.NewFloatArray(jvm.env(), length)
-		buf := C.calloc_jfloat_array(C.size_t(len(t)))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureFloat]))
-		defer C.free(unsafe.Pointer(buf))
-		C.SetFloatArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jfloatArray_to_jobject(value)
 		sig = SignatureFloatArray
+		value := C.NewFloatArray(jvm.env(), length)
+		if length != 0 {
+			C.SetFloatArrayRegion(jvm.env(), value, start, length, (*C.jfloat)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []float64:
-		length := C.jsize(len(t))
-		value := C.NewDoubleArray(jvm.env(), length)
-		buf := C.calloc_jdouble_array(C.size_t(len(t)))
-		C.memcpy(unsafe.Pointer(buf), unsafe.Pointer(&t[0]), C.size_t(len(t)*SizeOf[SignatureDouble]))
-		defer C.free(unsafe.Pointer(buf))
-		C.SetDoubleArrayRegion(jvm.env(), value, start, length, buf)
-		array = C.jdoubleArray_to_jobject(value)
 		sig = SignatureDoubleArray
+		value := C.NewDoubleArray(jvm.env(), length)
+		if length != 0 {
+			C.SetDoubleArrayRegion(jvm.env(), value, start, length, (*C.jdouble)(unsafe.Pointer(&t[0])))
+		}
+		array = C.jobject_conv(value)
 	case []JObject:
-		length := C.jsize(len(t))
 		if length == 0 {
 			panic("not implemented")
 		}
@@ -216,7 +201,7 @@ func (jvm *JVM) newJArray(goArray interface{}) (*jArray, error) {
 		for i, val := range t {
 			C.SetObjectArrayElement(jvm.env(), value, C.jsize(i), val.JavaValue().jobject())
 		}
-		array = C.jobjectArray_to_jobject(value)
+		array = C.jobject_conv(value)
 		sig = SignatureArray + t[0].Signature()
 	default:
 		return nil, errors.New("unsupported type")

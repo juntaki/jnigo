@@ -20,10 +20,10 @@ func (a *jString) GoValue() interface{} {
 	jstr := a.javavalue.jstring()
 	jlength := C.GetStringLength(a.jvm.env(), jstr)
 	start := C.jsize(0)
-	buf := C.calloc_jchar_array(C.size_t(jlength))
-	defer C.free(unsafe.Pointer(buf))
+	buf := C.calloc(1, C.size_t(int(jlength)*SizeOf[SignatureChar]))
+	defer C.free(buf)
 
-	C.GetStringRegion(a.jvm.env(), jstr, start, jlength, buf)
+	C.GetStringRegion(a.jvm.env(), jstr, start, jlength, (*C.jchar)(buf))
 
 	return C.GoString((*C.char)(unsafe.Pointer(buf)))
 }
