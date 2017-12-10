@@ -15,7 +15,9 @@ import (
 var jvm *JVM
 
 type JVM struct {
-	cjvm *C.JVM
+	cjvm          *C.JVM
+	classCache    map[string]C.jobject
+	methodIDCache map[C.jobject]map[string]C.jmethodID
 }
 
 func CreateJVM() *JVM {
@@ -25,13 +27,18 @@ func CreateJVM() *JVM {
 	}
 
 	jvm = &JVM{
-		cjvm: cjvm,
+		cjvm:          cjvm,
+		classCache:    make(map[string]C.jobject),
+		methodIDCache: make(map[C.jobject]map[string]C.jmethodID),
 	}
 	runtime.SetFinalizer(jvm, freeJVM)
 	return jvm
 }
 
 func freeJVM(jvm *JVM) {
+	for _, v := range jvm.classCache {
+		C.DeleteGlobalRef(jvm.env(), v)
+	}
 	C.free(unsafe.Pointer(jvm.cjvm))
 }
 
@@ -49,31 +56,54 @@ func (jvm *JVM) ExceptionCheck() error {
 	return nil
 }
 
+func (jvm *JVM) FindClass(classfqcn string) (C.jobject, error) {
+	if ret, ok := jvm.classCache[classfqcn]; ok {
+		return ret, nil
+	}
+
+	cname := C.CString(classfqcn)
+	defer C.free(unsafe.Pointer(cname))
+
+	clazz := C.FindClass(jvm.env(), cname)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, errors.New("class not found: " + classfqcn)
+	}
+	defer C.DeleteLocalRef(jvm.env(), clazz)
+
+	ret := C.NewGlobalRef(jvm.env(), clazz)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, errors.New("cannot get globalref: " + classfqcn)
+	}
+	jvm.classCache[classfqcn] = ret
+	jvm.methodIDCache[ret] = make(map[string]C.jmethodID)
+	return ret, nil
+}
+
 func (jvm *JVM) FindMethodID(clazz C.jobject, method, sig string) (C.jmethodID, error) {
-	var methodID C.jmethodID
+	// cache should be exist, because C.jobject is already assigned
+	cache := jvm.methodIDCache[clazz]
+	if ret, ok := cache[method+sig]; ok {
+		return ret, nil
+	}
 
 	cmethod := C.CString(method)
 	defer C.free(unsafe.Pointer(cmethod))
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
 
-	for targetClass := clazz; ; {
-		methodID = C.GetMethodID(jvm.env(), targetClass, cmethod, csig)
-		if err := jvm.ExceptionCheck(); err != nil {
-			return nil, err
-		} else {
-			break
-		}
+	methodID := C.GetMethodID(jvm.env(), clazz, cmethod, csig)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, errors.New("method not found: " + method + sig)
 	}
+
+	cache[method+sig] = methodID
 	return methodID, nil
 }
 
 func (jvm *JVM) GetStaticField(classfqcn, field, sig string) (JObject, error) {
-	cname := C.CString(classfqcn)
-	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.env(), cname)
-	if err := jvm.ExceptionCheck(); err != nil {
-		return nil, errors.New("class not found: " + classfqcn)
+	clazz, err := jvm.FindClass(classfqcn)
+	if err != nil {
+		return nil, err
 	}
 
 	cfield := C.CString(field)
@@ -123,11 +153,9 @@ func (jvm *JVM) GetStaticField(classfqcn, field, sig string) (JObject, error) {
 }
 
 func (jvm *JVM) SetField(classfqcn, field string, val JObject) error {
-	cname := C.CString(classfqcn)
-	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.cjvm.env, cname)
-	if clazz == nil {
-		return errors.New("FindClass" + classfqcn)
+	clazz, err := jvm.FindClass(classfqcn)
+	if err != nil {
+		return err
 	}
 
 	cfield := C.CString(field)
@@ -176,13 +204,10 @@ func (jvm *JVM) SetField(classfqcn, field string, val JObject) error {
 }
 
 func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject) (JObject, error) {
-	cname := C.CString(classfqcn)
-	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.env(), cname)
-	if err := jvm.ExceptionCheck(); err != nil {
+	clazz, err := jvm.FindClass(classfqcn)
+	if err != nil {
 		return nil, err
 	}
-	defer C.DeleteLocalRef(jvm.env(), clazz)
 
 	cmethod := C.CString(method)
 	defer C.free(unsafe.Pointer(cmethod))

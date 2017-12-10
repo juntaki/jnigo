@@ -195,35 +195,28 @@ func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error
 	}
 
 	fqcn := sig[1 : len(sig)-1]
-	cname := C.CString(fqcn)
-	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.env(), cname)
-	if err := jvm.ExceptionCheck(); err != nil {
-		return nil, err
-	}
-	defer C.DeleteLocalRef(jvm.env(), clazz)
-	ret.clazz = C.NewGlobalRef(jvm.env(), clazz)
-	if err := jvm.ExceptionCheck(); err != nil {
+	clazz, err := jvm.FindClass(fqcn)
+	if err != nil {
 		return nil, err
 	}
 
+	ret.clazz = clazz
 	runtime.SetFinalizer(ret, jvm.destroyJClass)
 	return ret, nil
 }
 
 func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
-	cname := C.CString(fqcn)
-	defer C.free(unsafe.Pointer(cname))
-	cinit := C.CString("<init>")
-	defer C.free(unsafe.Pointer(cinit))
-	csig := C.CString("()V")
-	defer C.free(unsafe.Pointer(csig))
-	clazz := C.FindClass(jvm.env(), cname)
-	if clazz == nil {
-		return nil, errors.New("FindClass" + fqcn)
+	init := "<init>"
+	sig := "()V"
+
+	clazz, err := jvm.FindClass(fqcn)
+	if err != nil {
+		return nil, err
 	}
-	defer C.DeleteLocalRef(jvm.env(), clazz)
-	methodID := C.GetMethodID(jvm.env(), clazz, cinit, csig)
+	methodID, err := jvm.FindMethodID(clazz, init, sig)
+	if err != nil {
+		return nil, err
+	}
 	jobject := C.NewObjectA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(args))
 	C.ExceptionDescribe(jvm.env())
 
@@ -234,7 +227,7 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
 		signature: "L" + fqcn + ";",
 		globalRef: ref,
-		clazz:     C.NewGlobalRef(jvm.env(), clazz),
+		clazz:     clazz,
 	}
 
 	runtime.SetFinalizer(ret, jvm.destroyJClass)
@@ -243,6 +236,5 @@ func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 
 func (jvm *JVM) destroyJClass(jobject *JClass) {
 	C.DeleteGlobalRef(jvm.env(), jobject.globalRef)
-	C.DeleteGlobalRef(jvm.env(), jobject.clazz)
 	jobject.javavalue.free()
 }

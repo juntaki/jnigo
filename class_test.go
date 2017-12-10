@@ -203,7 +203,7 @@ func TestJClassSetField(t *testing.T) {
 	goalong, _ := jvm.newJArray([]int64{10000, 10000})
 	goafloat, _ := jvm.newJArray([]float32{1000.0, 1000.0})
 	goadouble, _ := jvm.newJArray([]float64{1000.0, 1000.0})
-	//goajclass, _ := jvm.newJArray([]JClass{gojclass, gojclass})
+	//goajclass, _ := jvm.newJArray([]*JClass{gojclass, gojclass})
 
 	testArray := [][]interface{}{
 		[]interface{}{"vboolean", gobool},

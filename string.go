@@ -24,8 +24,7 @@ func (a *jString) GoValue() interface{} {
 	defer C.free(buf)
 
 	C.GetStringRegion(a.jvm.env(), jstr, start, jlength, (*C.jchar)(buf))
-
-	return C.GoString((*C.char)(unsafe.Pointer(buf)))
+	return C.GoStringN((*C.char)(buf), C.int(int(jlength)*SizeOf[SignatureChar]))
 }
 
 func (a *jString) JavaValue() CJvalue {
