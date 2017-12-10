@@ -1,8 +1,6 @@
 package jnigo
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestJClass(t *testing.T) {
 	jvm := CreateJVM()
@@ -161,8 +159,7 @@ func TestJClassGetStaticField(t *testing.T) {
 		[]string{"svlong", "J"},
 		[]string{"svfloat", "F"},
 		[]string{"svdouble", "D"},
-		[]string{"svclass", "LTestClass;"},
-
+		[]string{"svclass", "LTestSubClass;"},
 		[]string{"saboolean", "[Z"},
 		[]string{"sabyte", "[B"},
 		[]string{"sachar", "[C"},
@@ -171,22 +168,23 @@ func TestJClassGetStaticField(t *testing.T) {
 		[]string{"salong", "[J"},
 		[]string{"safloat", "[F"},
 		[]string{"sadouble", "[D"},
-		[]string{"saclass", "[LTestClass;"},
+		[]string{"saclass", "[LTestSubClass;"},
 	}
 
 	for _, test := range testArray {
-		v, err := jvm.GetStaticField(clazz, test[0], test[1])
-		if err != nil {
-			t.Fatal(err)
-		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
+		t.Run(test[0], func(t *testing.T) {
+			_, err := jvm.GetStaticField(clazz, test[0], test[1])
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 
 func TestJClassSetField(t *testing.T) {
 	jvm := CreateJVM()
 
-	clazz := "TestClass"
+	clazz := "TestSubClass"
 	gobool, _ := jvm.newJPrimitive(false)
 	gobyte, _ := jvm.newJPrimitive(byte(20))
 	gochar, _ := jvm.newJPrimitive(uint16(20))

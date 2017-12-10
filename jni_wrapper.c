@@ -339,7 +339,7 @@ void CallStaticVoidMethodA(JNIEnv *env, jclass cls, jmethodID methodID, const jv
 }
 
 jfieldID GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig) {
-    return GetStaticFieldID(env, clazz, name, sig);
+    return (*env)->GetStaticFieldID(env, clazz, name, sig);
 }
 jobject GetStaticObjectField(JNIEnv *env, jclass clazz, jfieldID fieldID) {
     return (*env)->GetStaticObjectField(env,clazz,fieldID);

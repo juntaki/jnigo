@@ -184,6 +184,9 @@ func (c *JClass) Signature() string {
 func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error) {
 	defer C.DeleteLocalRef(jvm.env(), jobject)
 	ref := C.NewGlobalRef(jvm.env(), jobject)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, err
+	}
 	ret := &JClass{
 		jvm:       jvm,
 		javavalue: NewCJvalue(C.calloc_jvalue_jobject(&ref)),
@@ -195,11 +198,14 @@ func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error
 	cname := C.CString(fqcn)
 	defer C.free(unsafe.Pointer(cname))
 	clazz := C.FindClass(jvm.env(), cname)
-	if clazz == nil {
-		return nil, errors.New("FindClass" + fqcn)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, err
 	}
 	defer C.DeleteLocalRef(jvm.env(), clazz)
 	ret.clazz = C.NewGlobalRef(jvm.env(), clazz)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, err
+	}
 
 	runtime.SetFinalizer(ret, jvm.destroyJClass)
 	return ret, nil

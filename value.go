@@ -5,6 +5,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime"
 	"unsafe"
 )
@@ -91,7 +92,7 @@ func (jvm *JVM) newJPrimitiveFromJava(initialValue interface{}, sig string) (*jP
 	case C.jdouble:
 		src = unsafe.Pointer(&value)
 	default:
-		return nil, errors.New("unknown type")
+		return nil, errors.New("unknown type" + reflect.TypeOf(initialValue).String())
 	}
 	C.memcpy(unsafe.Pointer(javavalue), src, C.size_t(SizeOf[sig]))
 

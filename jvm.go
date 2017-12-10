@@ -71,45 +71,46 @@ func (jvm *JVM) FindMethodID(clazz C.jobject, method, sig string) (C.jmethodID, 
 func (jvm *JVM) GetStaticField(classfqcn, field, sig string) (JObject, error) {
 	cname := C.CString(classfqcn)
 	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.cjvm.env, cname)
-	if clazz == nil {
-		return nil, errors.New("FindClass" + classfqcn)
+	clazz := C.FindClass(jvm.env(), cname)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, errors.New("class not found: " + classfqcn)
 	}
 
 	cfield := C.CString(field)
 	defer C.free(unsafe.Pointer(cfield))
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
-	fieldID := C.GetStaticFieldID(jvm.cjvm.env, clazz, cfield, csig)
-	err := jvm.ExceptionCheck()
-	if err != nil {
-		return nil, err
+
+	fieldID := C.GetStaticFieldID(jvm.env(), clazz, cfield, csig)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, errors.New("field not found: " + field + sig)
 	}
+
 	switch string(sig[0]) {
 	case SignatureBoolean:
 		ret := C.GetStaticBooleanField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		return jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
 		ret := C.GetStaticByteField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		return jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
 		ret := C.GetStaticCharField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		return jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
 		ret := C.GetStaticShortField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		return jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
 		ret := C.GetStaticIntField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		return jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
 		ret := C.GetStaticLongField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		return jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
 		ret := C.GetStaticFloatField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		return jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
 		ret := C.GetStaticDoubleField(jvm.cjvm.env, clazz, fieldID)
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		return jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureArray:
 		ret := C.GetStaticObjectField(jvm.cjvm.env, clazz, fieldID)
 		return jvm.newJArrayFromJava(&ret, sig)
@@ -140,34 +141,34 @@ func (jvm *JVM) SetField(classfqcn, field string, val JObject) error {
 	switch string(val.Signature()[0]) {
 	case SignatureBoolean:
 		C.SetStaticBooleanField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jboolean(&jvalue))
+			jvalue.jboolean())
 	case SignatureByte:
 		C.SetStaticByteField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jbyte(&jvalue))
+			jvalue.jbyte())
 	case SignatureChar:
 		C.SetStaticCharField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jchar(&jvalue))
+			jvalue.jchar())
 	case SignatureShort:
 		C.SetStaticShortField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jshort(&jvalue))
+			jvalue.jshort())
 	case SignatureInt:
 		C.SetStaticIntField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jint(&jvalue))
+			jvalue.jint())
 	case SignatureLong:
 		C.SetStaticLongField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jlong(&jvalue))
+			jvalue.jlong())
 	case SignatureFloat:
 		C.SetStaticFloatField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jfloat(&jvalue))
+			jvalue.jfloat())
 	case SignatureDouble:
 		C.SetStaticDoubleField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jdouble(&jvalue))
+			jvalue.jdouble())
 	case SignatureArray:
 		C.SetStaticObjectField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jobject(&jvalue))
+			jvalue.jobject())
 	case SignatureClass:
 		C.SetStaticObjectField(jvm.cjvm.env, clazz, fieldID,
-			*C.jvalue_to_jobject(&jvalue))
+			jvalue.jobject())
 	default:
 		return errors.New("Unknown return signature")
 	}

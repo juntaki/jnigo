@@ -52,7 +52,7 @@ public class TestClass {
     public static long svlong = 10;
     public static float svfloat = 10;
     public static double svdouble = 10;
-    public static TestSubClass svclass;
+    public static TestSubClass svclass = new TestSubClass();
 
     public static boolean[] saboolean = new boolean[]{true, false};
     public static byte[] sabyte = new byte[]{10, 11};
@@ -62,7 +62,7 @@ public class TestClass {
     public static long[] salong = new long[]{10, 11};
     public static float[] safloat = new float[]{10, 11};
     public static double[] sadouble = new double[]{10, 11};
-    public static TestSubClass[] saclass = new TestSubClass[]{};
+    public static TestSubClass[] saclass = new TestSubClass[]{new TestSubClass(), new TestSubClass()};
 
     public boolean mvboolean(){ return vboolean; }
     public byte mvbyte(){ return vbyte; }
