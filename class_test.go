@@ -155,6 +155,41 @@ func TestJClassGetField(t *testing.T) {
 	}
 }
 
+func TestJClassGetStaticField(t *testing.T) {
+	jvm := CreateJVM()
+
+	clazz := "TestClass"
+	testArray := [][]string{
+		[]string{"svboolean", "Z"},
+		[]string{"svbyte", "B"},
+		[]string{"svchar", "C"},
+		[]string{"svshort", "S"},
+		[]string{"svint", "I"},
+		[]string{"svlong", "J"},
+		[]string{"svfloat", "F"},
+		[]string{"svdouble", "D"},
+		[]string{"svclass", "LTestClass;"},
+
+		[]string{"saboolean", "[Z"},
+		[]string{"sabyte", "[B"},
+		[]string{"sachar", "[C"},
+		[]string{"sashort", "[S"},
+		[]string{"saint", "[I"},
+		[]string{"salong", "[J"},
+		[]string{"safloat", "[F"},
+		[]string{"sadouble", "[D"},
+		[]string{"saclass", "[LTestClass;"},
+	}
+
+	for _, test := range testArray {
+		v, err := jvm.GetStaticField(clazz, test[0], test[1])
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println("return ", v.GoValue(), v.Signature())
+	}
+}
+
 func TestJClassSetField(t *testing.T) {
 	jvm := CreateJVM()
 

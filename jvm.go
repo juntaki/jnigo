@@ -88,6 +88,112 @@ func (jvm *JVM) ExceptionCheck() error {
 	return nil
 }
 
+func (jvm *JVM) GetStaticField(classfqcn, field, sig string) (JObject, error) {
+	cname := C.CString(classfqcn)
+	defer C.free(unsafe.Pointer(cname))
+	clazz := C.FindClass(jvm.cjvm.env, cname)
+	if clazz == nil {
+		return nil, errors.New("FindClass" + classfqcn)
+	}
+
+	cfield := C.CString(field)
+	defer C.free(unsafe.Pointer(cfield))
+	csig := C.CString(sig)
+	defer C.free(unsafe.Pointer(csig))
+	fieldID := C.GetStaticFieldID(jvm.cjvm.env, clazz, cfield, csig)
+	err := jvm.ExceptionCheck()
+	if err != nil {
+		return nil, err
+	}
+	switch string(sig[0]) {
+	case SignatureBoolean:
+		ret := C.GetStaticBooleanField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+	case SignatureByte:
+		ret := C.GetStaticByteField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+	case SignatureChar:
+		ret := C.GetStaticCharField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+	case SignatureShort:
+		ret := C.GetStaticShortField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+	case SignatureInt:
+		ret := C.GetStaticIntField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+	case SignatureLong:
+		ret := C.GetStaticLongField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+	case SignatureFloat:
+		ret := C.GetStaticFloatField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+	case SignatureDouble:
+		ret := C.GetStaticDoubleField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+	case SignatureArray:
+		ret := C.GetStaticObjectField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJArrayFromJava(&ret, sig)
+	case SignatureClass:
+		ret := C.GetStaticObjectField(jvm.cjvm.env, clazz, fieldID)
+		return jvm.newJClassFromJava(ret, sig)
+	default:
+		return nil, errors.New("Unknown return signature")
+	}
+}
+
+func (jvm *JVM) SetField(classfqcn, field string, val JObject) error {
+	cname := C.CString(classfqcn)
+	defer C.free(unsafe.Pointer(cname))
+	clazz := C.FindClass(jvm.cjvm.env, cname)
+	if clazz == nil {
+		return errors.New("FindClass" + classfqcn)
+	}
+
+	cfield := C.CString(field)
+	defer C.free(unsafe.Pointer(cfield))
+	csig := C.CString(val.Signature())
+	defer C.free(unsafe.Pointer(csig))
+	fieldID := C.GetFieldID(jvm.cjvm.env, clazz, cfield, csig)
+
+	jvalue := val.JavaValue()
+
+	switch string(val.Signature()[0]) {
+	case SignatureBoolean:
+		C.SetStaticBooleanField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jboolean(&jvalue))
+	case SignatureByte:
+		C.SetStaticByteField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jbyte(&jvalue))
+	case SignatureChar:
+		C.SetStaticCharField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jchar(&jvalue))
+	case SignatureShort:
+		C.SetStaticShortField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jshort(&jvalue))
+	case SignatureInt:
+		C.SetStaticIntField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jint(&jvalue))
+	case SignatureLong:
+		C.SetStaticLongField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jlong(&jvalue))
+	case SignatureFloat:
+		C.SetStaticFloatField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jfloat(&jvalue))
+	case SignatureDouble:
+		C.SetStaticDoubleField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jdouble(&jvalue))
+	case SignatureArray:
+		C.SetStaticObjectField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jobject(&jvalue))
+	case SignatureClass:
+		C.SetStaticObjectField(jvm.cjvm.env, clazz, fieldID,
+			*C.jvalue_to_jobject(&jvalue))
+	default:
+		return errors.New("Unknown return signature")
+	}
+	return nil
+}
+
 func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject) (JObject, error) {
 	cname := C.CString(classfqcn)
 	defer C.free(unsafe.Pointer(cname))
