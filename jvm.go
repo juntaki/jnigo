@@ -7,8 +7,6 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
-	"regexp"
 	"runtime"
 	"unsafe"
 )
@@ -34,58 +32,40 @@ func CreateJVM() *JVM {
 }
 
 func freeJVM(jvm *JVM) {
-	fmt.Println("JVM freed")
 	C.free(unsafe.Pointer(jvm.cjvm))
 }
 
-// This may not work
-func (jvm *JVM) destroyJVM() {
-	C.destroyJVM(jvm.cjvm)
+func (jvm *JVM) env() *C.JNIEnv {
+	return jvm.cjvm.env
 }
-
-const (
-	SignatureBoolean = "Z"
-	SignatureByte    = "B"
-	SignatureChar    = "C"
-	SignatureShort   = "S"
-	SignatureInt     = "I"
-	SignatureLong    = "J"
-	SignatureFloat   = "F"
-	SignatureDouble  = "D"
-	SignatureArray   = "["
-	SignatureVoid    = "V"
-	SignatureClass   = "L"
-)
-
-var SizeOf = map[string]int{
-	SignatureBoolean: 1,
-	SignatureByte:    1,
-	SignatureChar:    2,
-	SignatureShort:   2,
-	SignatureInt:     4,
-	SignatureLong:    8,
-	SignatureFloat:   4,
-	SignatureDouble:  8,
-	SignatureArray:   8,
-	SignatureVoid:    0,
-	SignatureClass:   8,
-}
-
-type JObject interface {
-	Signature() string
-	GoValue() interface{}
-	JavaValue() C.jvalue
-}
-
-var funcSignagure = regexp.MustCompile(`\((.*)\)((.).*)`)
 
 func (jvm *JVM) ExceptionCheck() error {
-	errExist := C.jboolean_to_uint8(C.ExceptionCheck(jvm.cjvm.env))
+	errExist := (uint8)(C.ExceptionCheck(jvm.env()))
 	if errExist != 0 {
-		C.ExceptionDescribe(jvm.cjvm.env)
-		return errors.New("JNI Exception")
+		C.ExceptionClear(jvm.env())
+		// TODO: Exception details
+		return errors.New("Exception")
 	}
 	return nil
+}
+
+func (jvm *JVM) FindMethodID(clazz C.jobject, method, sig string) (C.jmethodID, error) {
+	var methodID C.jmethodID
+
+	cmethod := C.CString(method)
+	defer C.free(unsafe.Pointer(cmethod))
+	csig := C.CString(sig)
+	defer C.free(unsafe.Pointer(csig))
+
+	for targetClass := clazz; ; {
+		methodID = C.GetMethodID(jvm.env(), targetClass, cmethod, csig)
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		} else {
+			break
+		}
+	}
+	return methodID, nil
 }
 
 func (jvm *JVM) GetStaticField(classfqcn, field, sig string) (JObject, error) {
@@ -197,54 +177,90 @@ func (jvm *JVM) SetField(classfqcn, field string, val JObject) error {
 func (jvm *JVM) CallStaticFunction(classfqcn, method, sig string, argv []JObject) (JObject, error) {
 	cname := C.CString(classfqcn)
 	defer C.free(unsafe.Pointer(cname))
-	clazz := C.FindClass(jvm.cjvm.env, cname)
-	if clazz == nil {
-		return nil, errors.New("FindClass" + classfqcn)
+	clazz := C.FindClass(jvm.env(), cname)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, err
 	}
+	defer C.DeleteLocalRef(jvm.env(), clazz)
 
 	cmethod := C.CString(method)
 	defer C.free(unsafe.Pointer(cmethod))
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
-	methodID := C.GetStaticMethodID(jvm.cjvm.env, clazz, cmethod, csig)
-	C.ExceptionDescribe(jvm.cjvm.env)
+	methodID := C.GetStaticMethodID(jvm.env(), clazz, cmethod, csig)
+	if err := jvm.ExceptionCheck(); err != nil {
+		return nil, err
+	}
 
 	retsig := funcSignagure.FindStringSubmatch(sig)[3]
 	retsigFull := funcSignagure.FindStringSubmatch(sig)[2]
 
 	switch retsig {
 	case SignatureBoolean:
-		ret := C.CallStaticBooleanMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureBoolean)
+		ret := C.CallStaticBooleanMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
-		ret := C.CallStaticByteMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureByte)
+		ret := C.CallStaticByteMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
-		ret := C.CallStaticCharMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureChar)
+		ret := C.CallStaticCharMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
-		ret := C.CallStaticShortMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureShort)
+		ret := C.CallStaticShortMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
-		ret := C.CallStaticIntMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureInt)
+		ret := C.CallStaticIntMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
-		ret := C.CallStaticLongMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureLong)
+		ret := C.CallStaticLongMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
-		ret := C.CallStaticFloatMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureFloat)
+		ret := C.CallStaticFloatMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
-		ret := C.CallStaticDoubleMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
-		return jvm.newJPrimitiveFromJava(unsafe.Pointer(&ret), SignatureDouble)
+		ret := C.CallStaticDoubleMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
+		return jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureVoid:
-		C.CallStaticVoidMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		C.CallStaticVoidMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	case SignatureArray:
-		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		ret := C.CallStaticObjectMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return jvm.newJArrayFromJava(&ret, retsigFull)
 	case SignatureClass:
-		ret := C.CallStaticObjectMethodA(jvm.cjvm.env, clazz, methodID, jObjectArrayTojvalueArray(argv))
+		ret := C.CallStaticObjectMethodA(jvm.env(), clazz, methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return jvm.newJClassFromJava(ret, retsigFull)
 	default:
 		return nil, errors.New("Unknown return signature")
@@ -260,7 +276,7 @@ func jObjectArrayTojvalueArray(args []JObject) *C.jvalue {
 	jvalueArray := make([]C.jvalue, len(args))
 
 	for i, arg := range args {
-		jvalueArray[i] = arg.JavaValue()
+		jvalueArray[i] = arg.JavaValue().jvalue()
 	}
 	return (*C.jvalue)(unsafe.Pointer(&jvalueArray[0]))
 }

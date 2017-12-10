@@ -1,4 +1,5 @@
 #include "jni_wrapper.h"
+#include <stdlib.h>
 
 JVM* createJVM() {
     JVM *jvm;
@@ -7,15 +8,21 @@ JVM* createJVM() {
         printf("JNI Create failed: malloc\n");
         return NULL;
     }
-
     JavaVMInitArgs vm_args;
+    memset(&vm_args, 0, sizeof(vm_args));
+    JavaVMOption options[1];
     vm_args.version = JNI_VERSION_1_8;
-    jint ret = JNI_GetDefaultJavaVMInitArgs(&vm_args);
-    if (ret != JNI_OK) {
-        printf("JNI Create failed: GetDefaultJavaVMInitArgs ret=%d\n", ret);
-        return NULL;
-    }
+    vm_args.nOptions = 1;
+    vm_args.options = options;
 
+    char* classpath = getenv("CLASSPATH");
+    int optlen = strlen(classpath) + 30;
+    char optstr[optlen];
+    strcpy(optstr, "-Djava.class.path=");
+    options[0].optionString = strcat(optstr, classpath);
+    vm_args.options = options;
+
+    jint ret;
     ret = JNI_CreateJavaVM(&jvm->jvm, (void **)&jvm->env, &vm_args);
     if (ret == JNI_EEXIST) {
         ret = JNI_GetCreatedJavaVMs(&jvm->jvm, 1, NULL);

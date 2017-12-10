@@ -1,7 +1,6 @@
 package jnigo
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -10,12 +9,11 @@ func TestJClass(t *testing.T) {
 
 	testArray := [][]interface{}{
 		[]interface{}{"java/lang/String", []JObject{}},
+		[]interface{}{"TestSubClass", []JObject{}},
 	}
 
 	for _, test := range testArray {
-		fmt.Println(test)
 		value, err := jvm.NewJClass(test[0].(string), test[1].([]JObject))
-		fmt.Println(value)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -24,11 +22,9 @@ func TestJClass(t *testing.T) {
 			t.Fatal(value.GoValue())
 		}
 
-		v, err := value.CallFunction("length", "()I", []JObject{})
-		if err != nil {
-			t.Fatal(err)
+		if value.String() != "" {
+			t.Fatal(value.String())
 		}
-		fmt.Println("length", v.GoValue())
 	}
 }
 
@@ -45,7 +41,7 @@ func TestJClassMethod(t *testing.T) {
 		[]string{"mvlong", "()J"},
 		[]string{"mvfloat", "()F"},
 		[]string{"mvdouble", "()D"},
-		[]string{"mvclass", "()LTestClass;"},
+		[]string{"mvclass", "()LTestSubClass;"},
 
 		[]string{"maboolean", "()[Z"},
 		[]string{"mabyte", "()[B"},
@@ -55,7 +51,7 @@ func TestJClassMethod(t *testing.T) {
 		[]string{"malong", "()[J"},
 		[]string{"mafloat", "()[F"},
 		[]string{"madouble", "()[D"},
-		[]string{"maclass", "()[LTestClass;"},
+		[]string{"maclass", "()[LTestSubClass;"},
 	}
 
 	value, err := jvm.NewJClass(clazz, []JObject{})
@@ -68,11 +64,10 @@ func TestJClassMethod(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		v, err := value.CallFunction(test[0], test[1], []JObject{})
+		_, err := value.CallFunction(test[0], test[1], []JObject{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 
@@ -89,7 +84,7 @@ func TestJClassStaticMethod(t *testing.T) {
 		[]string{"smvlong", "()J"},
 		[]string{"smvfloat", "()F"},
 		[]string{"smvdouble", "()D"},
-		[]string{"smvclass", "()LTestClass;"},
+		[]string{"smvclass", "()LTestSubClass;"},
 
 		[]string{"smaboolean", "()[Z"},
 		[]string{"smabyte", "()[B"},
@@ -99,15 +94,14 @@ func TestJClassStaticMethod(t *testing.T) {
 		[]string{"smalong", "()[J"},
 		[]string{"smafloat", "()[F"},
 		[]string{"smadouble", "()[D"},
-		[]string{"smaclass", "()[LTestClass;"},
+		[]string{"smaclass", "()[LTestSubClass;"},
 	}
 
 	for _, test := range testArray {
-		v, err := jvm.CallStaticFunction(clazz, test[0], test[1], []JObject{})
+		_, err := jvm.CallStaticFunction(clazz, test[0], test[1], []JObject{})
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 
@@ -124,7 +118,7 @@ func TestJClassGetField(t *testing.T) {
 		[]string{"vlong", "J"},
 		[]string{"vfloat", "F"},
 		[]string{"vdouble", "D"},
-		[]string{"vclass", "LTestClass;"},
+		[]string{"vclass", "LTestSubClass;"},
 
 		[]string{"aboolean", "[Z"},
 		[]string{"abyte", "[B"},
@@ -134,7 +128,7 @@ func TestJClassGetField(t *testing.T) {
 		[]string{"along", "[J"},
 		[]string{"afloat", "[F"},
 		[]string{"adouble", "[D"},
-		[]string{"aclass", "[LTestClass;"},
+		[]string{"aclass", "[LTestSubClass;"},
 	}
 
 	value, err := jvm.NewJClass(clazz, []JObject{})
@@ -147,11 +141,10 @@ func TestJClassGetField(t *testing.T) {
 	}
 
 	for _, test := range testArray {
-		v, err := value.GetField(test[0], test[1])
+		_, err := value.GetField(test[0], test[1])
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println("return ", v.GoValue(), v.Signature())
 	}
 }
 
@@ -202,17 +195,17 @@ func TestJClassSetField(t *testing.T) {
 	golong, _ := jvm.newJPrimitive(int64(20))
 	gofloat, _ := jvm.newJPrimitive(float32(20))
 	godouble, _ := jvm.newJPrimitive(float64(20))
-	// gojclass, _ := jvm.NewJClass(clazz, []JObject{})
+	gojclass, _ := jvm.NewJClass("TestSubClass", []JObject{})
 
-	// goabool, _ := jvm.newJArray([]bool{true, false})
-	// goabyte, _ := jvm.newJArray([]byte{100, 100})
-	// goachar, _ := jvm.newJArray([]uint16{10000, 10000})
-	// goashort, _ := jvm.newJArray([]int16{10000, 10000})
-	// goaint, _ := jvm.newJArray([]int32{10000, 10000})
-	// goalong, _ := jvm.newJArray([]int64{10000, 10000})
-	// goafloat, _ := jvm.newJArray([]float32{1000.0, 1000.0})
-	// goadouble, _ := jvm.newJArray([]float64{1000.0, 1000.0})
-	//goajclass, _ := jvm.newJArray([]JClass{1000.0, 1000.0})
+	goabool, _ := jvm.newJArray([]bool{true, false})
+	goabyte, _ := jvm.newJArray([]byte{100, 100})
+	goachar, _ := jvm.newJArray([]uint16{10000, 10000})
+	goashort, _ := jvm.newJArray([]int16{10000, 10000})
+	goaint, _ := jvm.newJArray([]int32{10000, 10000})
+	goalong, _ := jvm.newJArray([]int64{10000, 10000})
+	goafloat, _ := jvm.newJArray([]float32{1000.0, 1000.0})
+	goadouble, _ := jvm.newJArray([]float64{1000.0, 1000.0})
+	//goajclass, _ := jvm.newJArray([]JClass{gojclass, gojclass})
 
 	testArray := [][]interface{}{
 		[]interface{}{"vboolean", gobool},
@@ -223,16 +216,16 @@ func TestJClassSetField(t *testing.T) {
 		[]interface{}{"vlong", golong},
 		[]interface{}{"vfloat", gofloat},
 		[]interface{}{"vdouble", godouble},
-		//[]interface{}{"vclass", gojclass},
+		[]interface{}{"vclass", gojclass},
 
-		// []interface{}{"aboolean", goabool},
-		// []interface{}{"abyte", goabyte},
-		// []interface{}{"achar", goachar},
-		// []interface{}{"ashort", goashort},
-		// []interface{}{"aint", goaint},
-		// []interface{}{"along", goalong},
-		// []interface{}{"afloat", goafloat},
-		// []interface{}{"adouble", goadouble},
+		[]interface{}{"aboolean", goabool},
+		[]interface{}{"abyte", goabyte},
+		[]interface{}{"achar", goachar},
+		[]interface{}{"ashort", goashort},
+		[]interface{}{"aint", goaint},
+		[]interface{}{"along", goalong},
+		[]interface{}{"afloat", goafloat},
+		[]interface{}{"adouble", goadouble},
 		//[]interface{}{"aclass", goajclass},
 	}
 
