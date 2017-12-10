@@ -97,15 +97,10 @@ func (c *JClass) SetField(field string, val JObject) error {
 }
 
 func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, error) {
-	cmethod := C.CString(method)
-	defer C.free(unsafe.Pointer(cmethod))
-	csig := C.CString(sig)
-	defer C.free(unsafe.Pointer(csig))
-
-	methodID := C.GetMethodID(c.jvm.env(), c.clazz, cmethod, csig)
-
-	C.ExceptionDescribe(c.jvm.env())
-
+	methodID, err := c.jvm.FindMethodID(c.clazz, method, sig)
+	if err != nil {
+		return nil, err
+	}
 	retsig := funcSignagure.FindStringSubmatch(sig)[3]
 	retsigFull := funcSignagure.FindStringSubmatch(sig)[2]
 

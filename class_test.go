@@ -9,6 +9,7 @@ func TestJClass(t *testing.T) {
 
 	testArray := [][]interface{}{
 		[]interface{}{"java/lang/String", []JObject{}},
+		[]interface{}{"TestSubClass", []JObject{}},
 	}
 
 	for _, test := range testArray {
@@ -21,10 +22,6 @@ func TestJClass(t *testing.T) {
 			t.Fatal(value.GoValue())
 		}
 
-		_, err = value.CallFunction("length", "()I", []JObject{})
-		if err != nil {
-			t.Fatal(err)
-		}
 		if value.String() != "" {
 			t.Fatal(value.String())
 		}
