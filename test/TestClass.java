@@ -22,6 +22,7 @@ public class TestClass {
     }
 
     TestClass(int a) {
+        vboolean = false;
     }
 
     public boolean vboolean;
@@ -103,10 +104,5 @@ public class TestClass {
     public static float[] smafloat() { return safloat; }
     public static double[] smadouble() { return sadouble; }
     public static TestSubClass[] smaclass() { return saclass; }
-
-    public static void main(String[] args){
-        TestClass hoge = new TestClass();
-        System.out.println(hoge.toString());
-    }
 }
 

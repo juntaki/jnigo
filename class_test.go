@@ -1,13 +1,22 @@
 package jnigo
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestJClass(t *testing.T) {
 	jvm := CreateJVM()
 
+	val, err := jvm.newJPrimitive(int32(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	testArray := [][]interface{}{
-		[]interface{}{"java/lang/String", []JObject{}},
-		[]interface{}{"TestSubClass", []JObject{}},
+		[]interface{}{"java/lang/String", []JObject{}, ""},
+		[]interface{}{"TestSubClass", []JObject{}, "TestSubClass"},
+		[]interface{}{"TestClass", []JObject{val}, "TestClass"},
 	}
 
 	for _, test := range testArray {
@@ -20,7 +29,7 @@ func TestJClass(t *testing.T) {
 			t.Fatal(value.GoValue())
 		}
 
-		if value.String() != "" {
+		if strings.HasPrefix(value.String(), test[2].(string)) == false {
 			t.Fatal(value.String())
 		}
 	}

@@ -108,46 +108,79 @@ func (c *JClass) CallFunction(method, sig string, argv []JObject) (JObject, erro
 	case SignatureBoolean:
 		ret := C.CallBooleanMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureBoolean)
 	case SignatureByte:
 		ret := C.CallByteMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureByte)
 	case SignatureChar:
 		ret := C.CallCharMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureChar)
 	case SignatureShort:
 		ret := C.CallShortMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureShort)
 	case SignatureInt:
 		ret := C.CallIntMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureInt)
 	case SignatureLong:
 		ret := C.CallLongMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureLong)
 	case SignatureFloat:
 		ret := C.CallFloatMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureFloat)
 	case SignatureDouble:
 		ret := C.CallDoubleMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJPrimitiveFromJava(ret, SignatureDouble)
 	case SignatureVoid:
 		C.CallVoidMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	case SignatureArray:
 		ret := C.CallObjectMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		return c.jvm.newJArrayFromJava(&ret, retsigFull)
 	case SignatureClass:
 		ret := C.CallObjectMethodA(c.jvm.env(), c.javavalue.jobject(),
 			methodID, jObjectArrayTojvalueArray(argv))
+		if err := jvm.ExceptionCheck(); err != nil {
+			return nil, err
+		}
 		if retsigFull == "Ljava/lang/String;" {
 			return c.jvm.newjStringFromJava(ret)
 		}
@@ -207,7 +240,11 @@ func (jvm *JVM) newJClassFromJava(jobject C.jobject, sig string) (*JClass, error
 
 func (jvm *JVM) NewJClass(fqcn string, args []JObject) (*JClass, error) {
 	init := "<init>"
-	sig := "()V"
+	sig := "("
+	for _, a := range args {
+		sig += a.Signature()
+	}
+	sig += ")V"
 
 	clazz, err := jvm.FindClass(fqcn)
 	if err != nil {

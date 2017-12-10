@@ -5,7 +5,6 @@ import "C"
 import (
 	"fmt"
 	"runtime"
-	"unsafe"
 )
 
 type jString struct {
@@ -18,13 +17,10 @@ type jString struct {
 
 func (a *jString) GoValue() interface{} {
 	jstr := a.javavalue.jstring()
-	jlength := C.GetStringLength(a.jvm.env(), jstr)
-	start := C.jsize(0)
-	buf := C.calloc(1, C.size_t(int(jlength)*SizeOf[SignatureChar]))
-	defer C.free(buf)
+	buf := C.GetStringUTFChars(a.jvm.env(), jstr, nil)
+	defer C.ReleaseStringUTFChars(a.jvm.env(), jstr, buf)
 
-	C.GetStringRegion(a.jvm.env(), jstr, start, jlength, (*C.jchar)(buf))
-	return C.GoStringN((*C.char)(buf), C.int(int(jlength)*SizeOf[SignatureChar]))
+	return C.GoString(buf)
 }
 
 func (a *jString) JavaValue() CJvalue {
@@ -55,7 +51,7 @@ func (jvm *JVM) newjStringFromJava(jstr C.jobject) (*jString, error) {
 
 func (jvm *JVM) newjString(str string) (*jString, error) {
 	cstr := C.CString(str) // will be freed by JNI??
-	jstr := C.NewString(jvm.env(), (*C.jchar)(unsafe.Pointer(cstr)), C.jsize(len(str)))
+	jstr := C.NewStringUTF(jvm.env(), cstr)
 	defer C.DeleteLocalRef(jvm.env(), jstr)
 	ref := C.NewGlobalRef(jvm.env(), jstr)
 
